@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Codebreaker — Terminal Heist</title>
+<style>
+  :root{
+    --bg:#05060a;
+    --panel:#071017;
+    --green:#00ff99;
+    --muted:#7b8a93;
+    --accent:#00d1ff;
+    --glass: rgba(255,255,255,0.02);
+  }
+  html,body{height:100%;margin:0;background:var(--bg);font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;color:var(--green);}
+  canvas#matrix{position:fixed;inset:0;z-index:0;opacity:0.14}
+  .wrap{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;}
+  .panel{
+    width:min(980px,94%);
+    max-width:1100px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(0,255,150,0.06);
+    border-radius:12px;padding:18px;box-shadow:0 8px 40px rgba(0,0,0,0.6);backdrop-filter: blur(6px);
+  }
+  header{display:flex;gap:12px;align-items:center}
+  .logo{
+    width:56px;height:56px;border-radius:8px;background:linear-gradient(90deg,#00101a,#002b3a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#001;box-shadow:0 2px 8px rgba(0,0,0,0.6);border:1px solid rgba(0,255,150,0.05)
+  }
+  h1{margin:0;font-size:20px;color:var(--accent);letter-spacing:0.6px}
+  p.lead{margin:0;color:var(--muted);font-size:12px}
+  .terminal{
+    margin-top:14px;background:linear-gradient(180deg,#02040a33,#02040a11);border-radius:8px;padding:14px;border:1px solid rgba(0,255,150,0.03);min-height:360px;overflow:hidden;position:relative;
+  }
+  .screen{
+    height:100%;overflow:auto;padding-right:6px;
+    white-space:pre-wrap;font-size:13px;line-height:1.5;color:var(--green);
+  }
+  .prompt{display:flex;gap:8px;align-items:flex-start;margin-top:8px}
+  .prompt .pfx{color:var(--accent);min-width:90px}
+  input.cmd{
+    flex:1;background:transparent;border:0;color:var(--green);outline:none;font-family:inherit;font-size:13px;
+    caret-color:var(--accent);
+  }
+  .btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn{background:transparent;border:1px dashed rgba(0,255,150,0.06);color:var(--muted);padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer}
+  .btn:hover{color:var(--accent);border-color:rgba(0,255,150,0.12)}
+  .hint{color:#9bd; font-size:13px}
+  footer.small{margin-top:12px;color:var(--muted);font-size:12px;text-align:right}
+  .success{color:#7cffb2}
+  .fail{color:#ff6b6b}
+  .meta{color:var(--muted);font-size:12px}
+  .score{display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(0,255,150,0.04);color:var(--accent);border:1px solid rgba(0,255,150,0.06);font-weight:600}
+  a.link{color:var(--accent);text-decoration:none}
+  /* small responsive */
+  @media (max-width:640px){
+    .logo{width:46px;height:46px}
+    h1{font-size:16px}
+  }
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div class="wrap">
+  <div class="panel" role="application" aria-label="Codebreaker Terminal">
+    <header>
+      <div class="logo">CP</div>
+      <div>
+        <h1>Codebreaker — Terminal Heist</h1>
+        <p class="lead">A small hacker puzzle. Type <code>help</code> to begin. Host this with GitHub Pages (put this file in <code>/docs/index.html</code>).</p>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div class="meta">Player: <span id="playerName">anonymous</span></div>
+        <div class="meta">Best: <span id="bestScore">—</span></div>
+      </div>
+    </header>
+
+    <div class="terminal" id="terminal">
+      <div class="screen" id="screen">
+        <div style="color:var(--muted)">Booting secure shell...</div>
+      </div>
+
+      <div class="prompt" aria-hidden>
+        <div class="pfx">&gt; mprshark@home</div>
+        <input id="cmd" class="cmd" placeholder="type a command (help)" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <div class="btns" aria-hidden>
+        <button class="btn" onclick="enter('help')">help</button>
+        <button class="btn" onclick="enter('scan')">scan</button>
+        <button class="btn" onclick="enter('hint')">hint</button>
+        <button class="btn" onclick="enter('status')">status</button>
+        <button class="btn" onclick="enter('reset')">reset</button>
+      </div>
+
+      <footer class="small">Attempts left: <span id="attempts">8</span> • Integrity: <span id="integrity">100%</span></footer>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/*
+  Codebreaker — a terminal puzzle.
+  - Commands: help | scan | hint | analyze | submit <code> | status | reset | share
+  - Game stores best in localStorage
+  - Share opens a prefilled issue link to your repo (change repo/user below)
+*/
+
+// ====== CONFIG: change these if you host under another repo =================
+const GITHUB_USER = "mprshark";   // your GitHub username
+const GITHUB_REPO = "mprshark";   // your repo name where game will be hosted
+// =============================================================================
+
+// terminal helpers
+const screen = document.getElementById('screen');
+const cmdEl = document.getElementById('cmd');
+const attemptsEl = document.getElementById('attempts');
+const integrityEl = document.getElementById('integrity');
+const playerNameEl = document.getElementById('playerName');
+const bestScoreEl = document.getElementById('bestScore');
+
+let state = {
+  code: null,
+  attempts: 8,
+  integrity: 100,
+  startedAt: null,
+  solved: false,
+  hintsGiven: 0,
+  name: localStorage.getItem('cb_player') || prompt("Player name? (optional)") || "anonymous"
+};
+
+playerNameEl.textContent = state.name;
+bestScoreEl.textContent = localStorage.getItem('cb_best') || '—';
+
+// simple deterministic seed for daily challenge (optional)
+/* generate code: pseudo-random based on user+date to avoid trivial sharing */
+function generateCode() {
+  // create seed from username + date (YYYYMMDD) for daily challenge
+  const d = new Date();
+  const seed = state.name + d.getUTCFullYear() + (d.getUTCMonth()+1) + d.getUTCDate();
+  // simple hash -> digits
+  let h = 0; for (let i=0;i<seed.length;i++){ h = (h*31 + seed.charCodeAt(i)) >>> 0; }
+  // produce 4 digits
+  const a = (h ^ (h<<5)) >>> 0;
+  const digits = (''+ (10000 + (a % 9000))).slice(-4);
+  return digits;
+}
+
+function initGame() {
+  state.code = generateCode();
+  state.attempts = 8;
+  state.integrity = 100;
+  state.startedAt = Date.now();
+  state.solved = false;
+  state.hintsGiven = 0;
+  renderStatus();
+  clearScreen();
+  printLine("== CODEBREAKER TERMINAL v1.0 ==");
+  printLine("Welcome, operator. System secured. Type 'help' to view commands.");
+  // debug: remove comment to show code for testing
+  // printLine("[debug] today's code: " + state.code, 'meta');
+}
+
+function clearScreen() { screen.innerHTML = ''; }
+function printLine(txt, cls='') {
+  const div = document.createElement('div');
+  if (cls) div.classList.add(cls);
+  div.textContent = txt;
+  screen.appendChild(div);
+  screen.scrollTop = screen.scrollHeight;
+}
+function printHtml(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  screen.appendChild(div);
+  screen.scrollTop = screen.scrollHeight;
+}
+
+function renderStatus(){
+  attemptsEl.textContent = state.attempts;
+  integrityEl.textContent = Math.max(0, Math.round(state.integrity)) + "%";
+}
+
+function enter(text) {
+  const input = text || cmdEl.value.trim();
+  if (!input) return;
+  runCommand(input);
+  cmdEl.value = '';
+  cmdEl.focus();
+}
+
+function runCommand(raw) {
+  printHtml(`<div style="color:${raw.startsWith('submit')?'#9bf':'var(--accent)'}">&gt; ${raw}</div>`);
+  const parts = raw.split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  const arg = parts.slice(1).join(' ');
+  switch(cmd){
+    case 'help': cmd_help(); break;
+    case 'scan': cmd_scan(); break;
+    case 'hint': cmd_hint(); break;
+    case 'analyze': cmd_analyze(); break;
+    case 'status': cmd_status(); break;
+    case 'bruteforce': cmd_bruteforce(); break;
+    case 'submit': cmd_submit(arg); break;
+    case 'reset': initGame(); break;
+    case 'share': cmd_share(); break;
+    default:
+      printLine("Unknown command. Type 'help' for available commands.",'fail');
+  }
+}
+
+function cmd_help(){
+  printLine("Available commands: help, scan, hint, analyze, bruteforce, submit <code>, status, reset, share");
+  printLine("Goal: discover the 4-digit access code and submit it with 'submit 1234'. You have limited attempts.");
+}
+
+function cmd_scan(){
+  printLine("Scanning target node...");
+  sleep(600).then(()=> {
+    // produce a few artifact hints
+    const code = state.code;
+    const sum = code.split('').reduce((s,d)=>s+Number(d),0);
+    const parity = code.split('').map(d=>d%2?'1':'0').join('');
+    const pos = Math.floor(code[1]); // second digit used as position hint
+    printLine(`Artifacts found: checksum=${sum}, parity-mask=${parity.slice(0,4)}, frag-index=${pos}`);
+    state.hintsGiven++;
+    renderStatus();
+  });
+}
+
+function cmd_hint(){
+  if(state.hintsGiven===0){
+    printLine("Hint 1: The sum of digits equals " + state.code.split('').reduce((s,d)=>s+Number(d),0));
+  } else if(state.hintsGiven===1){
+    printLine("Hint 2: The second digit equals the number of letters in your username mod 10 -> " + (state.name.length % 10));
+  } else if(state.hintsGiven===2){
+    printLine("Hint 3: The code's last two digits equal the last two digits of (your username charcodes sum) mod 100 -> " + (usernameCharSum()%100).toString().padStart(2,'0'));
+  } else {
+    printLine("No more free hints. Use 'analyze' for deeper inspection (costs integrity).");
+  }
+  state.hintsGiven++;
+  renderStatus();
+}
+
+function usernameCharSum(){
+  return state.name.split('').reduce((s,c)=>s + c.charCodeAt(0),0);
+}
+
+function cmd_analyze(){
+  printLine("Running heavy analysis... (cost: 12% integrity)");
+  state.integrity -= 12;
+  renderStatus();
+  sleep(800).then(()=>{
+    // provide more revealing patterns
+    const c = state.code;
+    printLine("Analysis report:");
+    printLine(` - Digit pattern: [${c[0]}][${c[1]}][x][${c[3]}]  (third digit masked)`);
+    printLine(` - Hint: The third digit equals (first XOR second) mod 10`);
+  });
+}
+
+function cmd_bruteforce(){
+  printLine("Brute-forcing simulation started (this will consume 2 attempts)...");
+  state.attempts = Math.max(0, state.attempts - 2);
+  state.integrity -= 6;
+  renderStatus();
+  sleep(800).then(()=>{
+    // show partial success
+    const c=state.code;
+    printLine(`Brute force found probable pattern: ${c[0]}?${c[3]} (one digit uncertain)`);
+  });
+}
+
+function cmd_submit(arg){
+  if(!arg || !/^\d{4}$/.test(arg)){ printLine("Usage: submit <4-digit-code>",'fail'); return; }
+  if(state.solved){ printLine("Already solved — reset to play again.", 'meta'); return; }
+  if(state.attempts<=0){ printLine("No attempts left. Reset to try again.",'fail'); return; }
+  if(arg === state.code){
+    const took = Math.round((Date.now() - state.startedAt)/1000);
+    printLine("ACCESS GRANTED — code accepted.",'success');
+    printLine(`Time: ${took}s • Attempts used: ${8 - state.attempts} • Hints: ${state.hintsGiven}`);
+    state.solved = true;
+    // store best (lowest time + fewest hints) -> simple score: time + hints*10 + attemptsUsed*5
+    const score = took + (state.hintsGiven*10) + ((8 - state.attempts)*5);
+    const best = Number(localStorage.getItem('cb_best')||0);
+    if(!best || score < best || localStorage.getItem('cb_best_name') === null){
+      localStorage.setItem('cb_best', score);
+      localStorage.setItem('cb_best_name', state.name);
+      bestScoreEl.textContent = score;
+      printLine("New personal best! Share it with 'share' to post to the repo.", 'success');
+    } else {
+      printLine("Score: " + score, 'meta');
+    }
+    // create share link
+    printLine("Type 'share' to open a pre-filled GitHub issue to record your win.", 'meta');
+  } else {
+    state.attempts--;
+    state.integrity -= 8;
+    renderStatus();
+    printLine("ACCESS DENIED — wrong code.", 'fail');
+    if(state.attempts<=0){
+      printLine("SYSTEM LOCKDOWN — no attempts left. Reset to play again.", 'fail');
+    } else {
+      printLine(`Attempts remaining: ${state.attempts}`, 'meta');
+    }
+  }
+}
+
+function cmd_status(){
+  printLine(`Status: attempts=${state.attempts} integrity=${Math.max(0,Math.round(state.integrity))}% hints=${state.hintsGiven}`);
+  if(state.solved) printLine("Current state: solved (reset to play again).", 'success');
+}
+
+function cmd_share(){
+  if(!state.solved){ printLine("Solve the puzzle first. Then you can share your score.", 'fail'); return; }
+  const took = Math.round((Date.now() - state.startedAt)/1000);
+  const score = took + (state.hintsGiven*10) + ((8 - state.attempts)*5);
+  // prefill issue
+  const title = encodeURIComponent(`Codebreaker score by ${state.name} — ${score}`);
+  const body = encodeURIComponent(`Player: ${state.name}\nScore: ${score}\nTime: ${took}s\nHints: ${state.hintsGiven}\nAttempts used: ${8 - state.attempts}\n\nPlay the game here: https://${GITHUB_USER}.github.io/${GITHUB_REPO}/`);
+  const url = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/issues/new?title=${title}&body=${body}`;
+  printLine("Opening share link in a new tab...");
+  window.open(url,'_blank');
+}
+
+// small util: promise sleep
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// input handler
+cmdEl.addEventListener('keydown',(e)=>{
+  if(e.key === 'Enter'){ e.preventDefault(); enter(); }
+  if(e.key === 'ArrowUp'){ /* optional history */ }
+});
+
+// matrix background effect
+(function matrix(){
+  const c = document.getElementById('matrix');
+  const ctx = c.getContext('2d');
+  let w,h;
+  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; init(); }
+  window.addEventListener('resize',resize);
+  const cols = [];
+  let fontSize = 14;
+  function init(){
+    fontSize = Math.max(10, Math.floor(innerWidth/120));
+    const colsCount = Math.ceil(w/(fontSize));
+    cols.length = colsCount;
+    for(let i=0;i<colsCount;i++) cols[i]=Math.random()*h;
+  }
+  function loop(){
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = 'rgba(0,255,140,0.12)';
+    ctx.font = `${fontSize}px monospace`;
+    for(let i=0;i<cols.length;i++){
+      const text = String.fromCharCode(33 + Math.random()*94);
+      ctx.fillText(text, i*fontSize, cols[i]);
+      if(cols[i] > h + Math.random()*1000) cols[i] = -50;
+      else cols[i] += fontSize * (0.5 + Math.random()*0.9);
+    }
+    requestAnimationFrame(loop);
+  }
+  resize(); loop();
+})();
+
+// initialize
+initGame();
+
+// expose enter function to buttons
+window.enter = enter;
+</script>
+</body>
+</html>
