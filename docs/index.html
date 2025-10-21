@@ -6,6 +6,7 @@
 <title>Codebreaker — Terminal Heist</title>
 <style>
   :root{
+    /* style variables — change to match README colors */
     --bg:#05060a;
     --panel:#071017;
     --green:#00ff99;
@@ -30,7 +31,7 @@
   h1{margin:0;font-size:20px;color:var(--accent);letter-spacing:0.6px}
   p.lead{margin:0;color:var(--muted);font-size:12px}
   .terminal{
-    margin-top:14px;background:linear-gradient(180deg,#02040a33,#02040a11);border-radius:8px;padding:14px;border:1px solid rgba(0,255,150,0.03);min-height:360px;overflow:hidden;position:relative;
+    margin-top:14px;background:linear-gradient(180deg,#02040a33,#02040a11);border-radius:8px;padding:14px;border:1px solid rgba(0,255,150,0.03);min-height:420px;overflow:hidden;position:relative;
   }
   .screen{
     height:100%;overflow:auto;padding-right:6px;
@@ -67,7 +68,7 @@
       <div class="logo">CP</div>
       <div>
         <h1>Codebreaker — Terminal Heist</h1>
-        <p class="lead">A small hacker puzzle. Type <code>help</code> to begin. Host this with GitHub Pages (put this file in <code>/docs/index.html</code>).</p>
+        <p class="lead">A hacker-puzzle. Type <code>help</code> to begin. Host via GitHub Pages (<code>/docs/index.html</code>).</p>
       </div>
       <div style="margin-left:auto;text-align:right">
         <div class="meta">Player: <span id="playerName">anonymous</span></div>
@@ -89,8 +90,13 @@
         <button class="btn" onclick="enter('help')">help</button>
         <button class="btn" onclick="enter('scan')">scan</button>
         <button class="btn" onclick="enter('hint')">hint</button>
+        <button class="btn" onclick="enter('analyze')">analyze</button>
         <button class="btn" onclick="enter('status')">status</button>
         <button class="btn" onclick="enter('reset')">reset</button>
+        <button class="btn" onclick="toggleSound()">🔊 sound</button>
+        <button class="btn" onclick="enter('level memory')">level:memory</button>
+        <button class="btn" onclick="enter('level pattern')">level:pattern</button>
+        <button class="btn" onclick="enter('level cipher')">level:cipher</button>
       </div>
 
       <footer class="small">Attempts left: <span id="attempts">8</span> • Integrity: <span id="integrity">100%</span></footer>
@@ -100,19 +106,11 @@
 </div>
 
 <script>
-/*
-  Codebreaker — a terminal puzzle.
-  - Commands: help | scan | hint | analyze | submit <code> | status | reset | share
-  - Game stores best in localStorage
-  - Share opens a prefilled issue link to your repo (change repo/user below)
-*/
+/* CONFIG */
+const GITHUB_USER = "mprshark";   // update if needed
+const GITHUB_REPO = "mprshark";   // update if needed
 
-// ====== CONFIG: change these if you host under another repo =================
-const GITHUB_USER = "mprshark";   // your GitHub username
-const GITHUB_REPO = "mprshark";   // your repo name where game will be hosted
-// =============================================================================
-
-// terminal helpers
+/* DOM */
 const screen = document.getElementById('screen');
 const cmdEl = document.getElementById('cmd');
 const attemptsEl = document.getElementById('attempts');
@@ -120,33 +118,81 @@ const integrityEl = document.getElementById('integrity');
 const playerNameEl = document.getElementById('playerName');
 const bestScoreEl = document.getElementById('bestScore');
 
+/* STATE */
 let state = {
+  level: 'codebreaker', // 'codebreaker' (default), 'memory', 'pattern', 'cipher'
   code: null,
   attempts: 8,
   integrity: 100,
   startedAt: null,
   solved: false,
   hintsGiven: 0,
-  name: localStorage.getItem('cb_player') || prompt("Player name? (optional)") || "anonymous"
+  name: localStorage.getItem('cb_player') || (prompt("Player name? (optional)") || "anonymous"),
+  memorySeq: [],
+  memProgress: 0,
+  patternSeq: [],
+  patternProgress: 0,
+  cipherKey: 3
 };
 
 playerNameEl.textContent = state.name;
 bestScoreEl.textContent = localStorage.getItem('cb_best') || '—';
 
-// simple deterministic seed for daily challenge (optional)
-/* generate code: pseudo-random based on user+date to avoid trivial sharing */
+/* SOUND: accessible simple beep; respects prefers-reduced-motion and a toggle */
+let audioCtx = null;
+let soundEnabled = JSON.parse(localStorage.getItem('cb_sound') || 'false');
+function ensureAudio() {
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function beep(freq=880, duration=60, vol=0.02){
+  // Respect prefers-reduced-motion/animation as accessibility preference
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!soundEnabled) return;
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'sine';
+  o.frequency.value = freq;
+  g.gain.value = vol;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=>{ o.stop(); }, duration);
+}
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('cb_sound', JSON.stringify(soundEnabled));
+  printLine(soundEnabled ? "Sound enabled." : "Sound disabled.");
+  beep(880, 80, 0.03);
+}
+
+/* DAILY CODE: deterministic UTC-seeded (already uses UTC) */
 function generateCode() {
-  // create seed from username + date (YYYYMMDD) for daily challenge
   const d = new Date();
   const seed = state.name + d.getUTCFullYear() + (d.getUTCMonth()+1) + d.getUTCDate();
-  // simple hash -> digits
   let h = 0; for (let i=0;i<seed.length;i++){ h = (h*31 + seed.charCodeAt(i)) >>> 0; }
-  // produce 4 digits
   const a = (h ^ (h<<5)) >>> 0;
   const digits = (''+ (10000 + (a % 9000))).slice(-4);
   return digits;
 }
 
+/* Additional: memory/pattern/cipher generation helpers */
+function genMemorySeq(len=5){
+  const chars = 'R G B Y'.split(' ');
+  const seq = [];
+  for(let i=0;i<len;i++) seq.push(chars[Math.floor(Math.random()*chars.length)]);
+  return seq;
+}
+function genPattern(len=5){
+  // pattern as digits 0-3
+  const seq = [];
+  for(let i=0;i<len;i++) seq.push(Math.floor(Math.random()*4));
+  return seq;
+}
+function genCipherKey(){
+  state.cipherKey = 1 + Math.floor(Math.random()*9); // shift 1..9
+}
+
+/* INIT */
 function initGame() {
   state.code = generateCode();
   state.attempts = 8;
@@ -154,12 +200,17 @@ function initGame() {
   state.startedAt = Date.now();
   state.solved = false;
   state.hintsGiven = 0;
+  // prepare secondary levels
+  state.memorySeq = genMemorySeq(5);
+  state.memProgress = 0;
+  state.patternSeq = genPattern(6);
+  state.patternProgress = 0;
+  genCipherKey();
   renderStatus();
   clearScreen();
-  printLine("== CODEBREAKER TERMINAL v1.0 ==");
-  printLine("Welcome, operator. System secured. Type 'help' to view commands.");
-  // debug: remove comment to show code for testing
-  // printLine("[debug] today's code: " + state.code, 'meta');
+  printLine("== CODEBREAKER TERMINAL v1.2 ==");
+  printLine(`Active level: ${state.level}`);
+  printLine("Welcome, operator. Type 'help' to view commands.");
 }
 
 function clearScreen() { screen.innerHTML = ''; }
@@ -169,6 +220,7 @@ function printLine(txt, cls='') {
   div.textContent = txt;
   screen.appendChild(div);
   screen.scrollTop = screen.scrollHeight;
+  beep(880,35,0.01);
 }
 function printHtml(html) {
   const div = document.createElement('div');
@@ -182,6 +234,7 @@ function renderStatus(){
   integrityEl.textContent = Math.max(0, Math.round(state.integrity)) + "%";
 }
 
+/* Input handling */
 function enter(text) {
   const input = text || cmdEl.value.trim();
   if (!input) return;
@@ -189,7 +242,6 @@ function enter(text) {
   cmdEl.value = '';
   cmdEl.focus();
 }
-
 function runCommand(raw) {
   printHtml(`<div style="color:${raw.startsWith('submit')?'#9bf':'var(--accent)'}">&gt; ${raw}</div>`);
   const parts = raw.split(/\s+/);
@@ -205,25 +257,30 @@ function runCommand(raw) {
     case 'submit': cmd_submit(arg); break;
     case 'reset': initGame(); break;
     case 'share': cmd_share(); break;
+    case 'level': cmd_level(arg); break;
+    case 'memory': level_memory_input(arg); break;
+    case 'pattern': level_pattern_input(arg); break;
+    case 'cipher': level_cipher_input(arg); break;
     default:
       printLine("Unknown command. Type 'help' for available commands.",'fail');
   }
 }
 
+/* COMMANDS */
 function cmd_help(){
-  printLine("Available commands: help, scan, hint, analyze, bruteforce, submit <code>, status, reset, share");
-  printLine("Goal: discover the 4-digit access code and submit it with 'submit 1234'. You have limited attempts.");
+  printLine("Available commands: help, scan, hint, analyze, bruteforce, submit <code>, status, reset, share, level <codebreaker|memory|pattern|cipher>");
+  printLine("When playing 'memory' type: memory <space-separated sequence>");
+  printLine("When playing 'pattern' type: pattern <comma-separated numbers> e.g. 0,1,3");
+  printLine("When playing 'cipher' type: cipher <decoded-text>");
 }
-
 function cmd_scan(){
   printLine("Scanning target node...");
-  sleep(600).then(()=> {
-    // produce a few artifact hints
+  sleep(400).then(()=> {
     const code = state.code;
     const sum = code.split('').reduce((s,d)=>s+Number(d),0);
     const parity = code.split('').map(d=>d%2?'1':'0').join('');
-    const pos = Math.floor(code[1]); // second digit used as position hint
-    printLine(`Artifacts found: checksum=${sum}, parity-mask=${parity.slice(0,4)}, frag-index=${pos}`);
+    const pos = Math.floor(code[1]);
+    printLine(`Artifacts: checksum=${sum}, parity-mask=${parity.slice(0,4)}, frag-index=${pos}`);
     state.hintsGiven++;
     renderStatus();
   });
@@ -231,48 +288,57 @@ function cmd_scan(){
 
 function cmd_hint(){
   if(state.hintsGiven===0){
-    printLine("Hint 1: The sum of digits equals " + state.code.split('').reduce((s,d)=>s+Number(d),0));
+    printLine("Hint 1: Sum digits equals " + state.code.split('').reduce((s,d)=>s+Number(d),0));
   } else if(state.hintsGiven===1){
-    printLine("Hint 2: The second digit equals the number of letters in your username mod 10 -> " + (state.name.length % 10));
+    printLine("Hint 2: Second digit = number of letters in username mod 10 -> " + (state.name.length % 10));
   } else if(state.hintsGiven===2){
-    printLine("Hint 3: The code's last two digits equal the last two digits of (your username charcodes sum) mod 100 -> " + (usernameCharSum()%100).toString().padStart(2,'0'));
+    printLine("Hint 3: Last two digits = (username charcodes sum) mod 100 -> " + (usernameCharSum()%100).toString().padStart(2,'0'));
   } else {
     printLine("No more free hints. Use 'analyze' for deeper inspection (costs integrity).");
   }
   state.hintsGiven++;
   renderStatus();
 }
-
-function usernameCharSum(){
-  return state.name.split('').reduce((s,c)=>s + c.charCodeAt(0),0);
-}
+function usernameCharSum(){ return state.name.split('').reduce((s,c)=>s + c.charCodeAt(0),0); }
 
 function cmd_analyze(){
   printLine("Running heavy analysis... (cost: 12% integrity)");
   state.integrity -= 12;
   renderStatus();
-  sleep(800).then(()=>{
-    // provide more revealing patterns
+  sleep(700).then(()=>{
     const c = state.code;
     printLine("Analysis report:");
     printLine(` - Digit pattern: [${c[0]}][${c[1]}][x][${c[3]}]  (third digit masked)`);
-    printLine(` - Hint: The third digit equals (first XOR second) mod 10`);
+    printLine(` - Hint: The third digit equals ( (first XOR second) mod 10 )`);
   });
 }
 
 function cmd_bruteforce(){
-  printLine("Brute-forcing simulation started (this will consume 2 attempts)...");
+  printLine("Brute-forcing simulation started (consumes 2 attempts)...");
   state.attempts = Math.max(0, state.attempts - 2);
-  state.integrity -= 6;
-  renderStatus();
+  state.integrity -= 6; renderStatus();
   sleep(800).then(()=>{
-    // show partial success
     const c=state.code;
     printLine(`Brute force found probable pattern: ${c[0]}?${c[3]} (one digit uncertain)`);
   });
 }
 
 function cmd_submit(arg){
+  if(state.level === 'codebreaker'){
+    submit_codebreaker(arg);
+  } else if(state.level === 'memory'){
+    level_memory_input(arg);
+  } else if(state.level === 'pattern'){
+    level_pattern_input(arg);
+  } else if(state.level === 'cipher'){
+    level_cipher_input(arg);
+  } else {
+    printLine("No valid level selected.", 'fail');
+  }
+}
+
+/* CODEBREAKER submit */
+function submit_codebreaker(arg){
   if(!arg || !/^\d{4}$/.test(arg)){ printLine("Usage: submit <4-digit-code>",'fail'); return; }
   if(state.solved){ printLine("Already solved — reset to play again.", 'meta'); return; }
   if(state.attempts<=0){ printLine("No attempts left. Reset to try again.",'fail'); return; }
@@ -281,94 +347,157 @@ function cmd_submit(arg){
     printLine("ACCESS GRANTED — code accepted.",'success');
     printLine(`Time: ${took}s • Attempts used: ${8 - state.attempts} • Hints: ${state.hintsGiven}`);
     state.solved = true;
-    // store best (lowest time + fewest hints) -> simple score: time + hints*10 + attemptsUsed*5
     const score = took + (state.hintsGiven*10) + ((8 - state.attempts)*5);
     const best = Number(localStorage.getItem('cb_best')||0);
-    if(!best || score < best || localStorage.getItem('cb_best_name') === null){
+    if(!best || score < best){
       localStorage.setItem('cb_best', score);
       localStorage.setItem('cb_best_name', state.name);
       bestScoreEl.textContent = score;
-      printLine("New personal best! Share it with 'share' to post to the repo.", 'success');
+      printLine("New personal best! Use 'share' to post to the repo.", 'success');
     } else {
       printLine("Score: " + score, 'meta');
     }
-    // create share link
     printLine("Type 'share' to open a pre-filled GitHub issue to record your win.", 'meta');
   } else {
     state.attempts--;
     state.integrity -= 8;
     renderStatus();
     printLine("ACCESS DENIED — wrong code.", 'fail');
-    if(state.attempts<=0){
-      printLine("SYSTEM LOCKDOWN — no attempts left. Reset to play again.", 'fail');
-    } else {
-      printLine(`Attempts remaining: ${state.attempts}`, 'meta');
-    }
+    if(state.attempts<=0) printLine("SYSTEM LOCKDOWN — no attempts left. Reset to play again.", 'fail');
+    else printLine(`Attempts remaining: ${state.attempts}`, 'meta');
   }
 }
 
-function cmd_status(){
-  printLine(`Status: attempts=${state.attempts} integrity=${Math.max(0,Math.round(state.integrity))}% hints=${state.hintsGiven}`);
-  if(state.solved) printLine("Current state: solved (reset to play again).", 'success');
+/* LEVEL SWITCH */
+function cmd_level(arg){
+  if(!arg) { printLine("Usage: level <codebreaker|memory|pattern|cipher>"); return; }
+  const lvl = arg.toLowerCase();
+  if(!['codebreaker','memory','pattern','cipher'].includes(lvl)) { printLine("Unknown level."); return; }
+  state.level = lvl;
+  printLine("Switched level to: " + lvl);
+  if(lvl==='memory') {
+    printLine("Memory sequence (watch):");
+    showMemorySequence();
+  } else if(lvl==='pattern') {
+    printLine("Pattern mode ready: type 'pattern 0,1,2' to answer; indices 0..3.");
+    showPatternSequence();
+  } else if(lvl==='cipher') {
+    printLine(`Cipher mode: decode Caesar shift of +${state.cipherKey}. Example: 'cipher secret' to submit decoded plain text.`);
+    printLine("To attempt: apply inverse of the shift to submit the original.");
+    // show a sample encoded phrase
+    const plain = "OPEN";
+    const encoded = caesarEncode(plain, state.cipherKey);
+    printLine(`Encoded sample: ${encoded}`);
+  }
 }
 
+/* MEMORY level: show and accept */
+async function showMemorySequence(){
+  // reveal items one by one
+  for(let i=0;i<state.memorySeq.length;i++){
+    printLine("• " + state.memorySeq[i]);
+    beep(600 + i*80, 70, 0.01);
+    await sleep(400);
+  }
+  printLine("Now type: memory <sequence>  (e.g. memory R G B Y R)");
+}
+function level_memory_input(arg){
+  if(!arg){ printLine("Usage: memory <space separated sequence>"); return;}
+  const attempt = arg.trim().toUpperCase().split(/\s+/);
+  if(attempt.join(',') === state.memorySeq.join(',')){
+    printLine("Memory sequence correct. Level cleared!", 'success'); afterLevelSolve();
+  } else {
+    state.attempts--; state.integrity -= 6; renderStatus();
+    printLine("Incorrect memory sequence.", 'fail');
+  }
+}
+
+/* PATTERN level: Simon-like: show numbers 0..3 */
+async function showPatternSequence(){
+  const s = state.patternSeq;
+  for(let i=0;i<s.length;i++){
+    printLine("⯈ " + s[i]);
+    beep(720 + (s[i]*60), 60, 0.01);
+    await sleep(400);
+  }
+  printLine("Submit: pattern 0,1,2,3 (comma separated)");
+}
+function level_pattern_input(arg){
+  if(!arg){ printLine("Usage: pattern 0,1,2"); return; }
+  const attempt = arg.split(',').map(x=>Number(x.trim()));
+  if(attempt.join(',') === state.patternSeq.join(',')){
+    printLine("Pattern matched. Level cleared!", 'success'); afterLevelSolve();
+  } else {
+    state.attempts--; state.integrity -= 6; renderStatus();
+    printLine("Pattern mismatch.", 'fail');
+  }
+}
+
+/* CIPHER level: user submits decoded text (we store shift key) */
+function caesarEncode(str, shift){
+  return str.toUpperCase().split('').map(ch=>{
+    if(ch<'A'||ch>'Z') return ch;
+    const c = ((ch.charCodeAt(0)-65 + shift) % 26) +65;
+    return String.fromCharCode(c);
+  }).join('');
+}
+function caesarDecode(str, shift){
+  return caesarEncode(str, 26-shift);
+}
+function level_cipher_input(arg){
+  if(!arg){ printLine("Usage: cipher <decoded-text> (submit the plaintext)"); return; }
+  // user must supply plaintext which after encoding should equal our sample encoded phrase (for demo)
+  const samplePlain = "OPEN";
+  const sampleEncoded = caesarEncode(samplePlain, state.cipherKey);
+  // allow them to submit plaintext equal to samplePlain OR a real check: any plaintext encoded equals target phrase stored
+  // For puzzle, we'll require they submit the correct plaintext for sampleEncoded
+  if(arg.trim().toUpperCase() === samplePlain){
+    printLine("Cipher solved. Level cleared!", 'success'); afterLevelSolve();
+  } else {
+    state.attempts--; state.integrity -= 6; renderStatus();
+    printLine("Wrong plaintext.", 'fail');
+  }
+}
+
+/* After any level solved */
+function afterLevelSolve(){
+  state.solved = true;
+  const took = Math.round((Date.now() - state.startedAt)/1000);
+  printLine(`Level ${state.level} solved in ${took}s`);
+  printLine("Type 'share' to publish your win (opens an issue).");
+}
+
+/* SHARE: prefill issue */
 function cmd_share(){
-  if(!state.solved){ printLine("Solve the puzzle first. Then you can share your score.", 'fail'); return; }
+  if(!state.solved){ printLine("Solve first. Then share.", 'fail'); return; }
   const took = Math.round((Date.now() - state.startedAt)/1000);
   const score = took + (state.hintsGiven*10) + ((8 - state.attempts)*5);
-  // prefill issue
   const title = encodeURIComponent(`Codebreaker score by ${state.name} — ${score}`);
-  const body = encodeURIComponent(`Player: ${state.name}\nScore: ${score}\nTime: ${took}s\nHints: ${state.hintsGiven}\nAttempts used: ${8 - state.attempts}\n\nPlay the game here: https://${GITHUB_USER}.github.io/${GITHUB_REPO}/`);
+  const body = encodeURIComponent([
+    `Player: ${state.name}`,
+    `Level: ${state.level}`,
+    `Score: ${score}`,
+    `Time: ${took}s`,
+    `Hints: ${state.hintsGiven}`,
+    `Attempts used: ${8 - state.attempts}`,
+    ``,
+    `Play: https://${GITHUB_USER}.github.io/${GITHUB_REPO}/`
+  ].join('\n'));
   const url = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/issues/new?title=${title}&body=${body}`;
-  printLine("Opening share link in a new tab...");
+  printLine("Opening share link...");
   window.open(url,'_blank');
 }
 
-// small util: promise sleep
+/* UTILITIES */
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-// input handler
-cmdEl.addEventListener('keydown',(e)=>{
-  if(e.key === 'Enter'){ e.preventDefault(); enter(); }
-  if(e.key === 'ArrowUp'){ /* optional history */ }
-});
-
-// matrix background effect
-(function matrix(){
-  const c = document.getElementById('matrix');
-  const ctx = c.getContext('2d');
-  let w,h;
-  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; init(); }
-  window.addEventListener('resize',resize);
-  const cols = [];
-  let fontSize = 14;
-  function init(){
-    fontSize = Math.max(10, Math.floor(innerWidth/120));
-    const colsCount = Math.ceil(w/(fontSize));
-    cols.length = colsCount;
-    for(let i=0;i<colsCount;i++) cols[i]=Math.random()*h;
-  }
-  function loop(){
-    ctx.fillStyle = 'rgba(0,0,0,0.06)';
-    ctx.fillRect(0,0,w,h);
-    ctx.fillStyle = 'rgba(0,255,140,0.12)';
-    ctx.font = `${fontSize}px monospace`;
-    for(let i=0;i<cols.length;i++){
-      const text = String.fromCharCode(33 + Math.random()*94);
-      ctx.fillText(text, i*fontSize, cols[i]);
-      if(cols[i] > h + Math.random()*1000) cols[i] = -50;
-      else cols[i] += fontSize * (0.5 + Math.random()*0.9);
-    }
-    requestAnimationFrame(loop);
-  }
-  resize(); loop();
-})();
-
-// initialize
-initGame();
-
-// expose enter function to buttons
+cmdEl.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); enter(); } });
 window.enter = enter;
+
+/* matrix background (same as before) */
+(function matrix(){ const c=document.getElementById('matrix'); const ctx=c.getContext('2d'); let w,h; function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; init(); } window.addEventListener('resize',resize); const cols=[]; let fontSize=14; function init(){ fontSize = Math.max(10, Math.floor(innerWidth/120)); const colsCount = Math.ceil(w/(fontSize)); cols.length = colsCount; for(let i=0;i<colsCount;i++) cols[i]=Math.random()*h; } function loop(){ ctx.fillStyle='rgba(0,0,0,0.06)'; ctx.fillRect(0,0,w,h); ctx.fillStyle='rgba(0,255,140,0.12)'; ctx.font = `${fontSize}px monospace`; for(let i=0;i<cols.length;i++){ const text = String.fromCharCode(33 + Math.random()*94); ctx.fillText(text, i*fontSize, cols[i]); if(cols[i] > h + Math.random()*1000) cols[i] = -50; else cols[i] += fontSize * (0.5 + Math.random()*0.9); } requestAnimationFrame(loop);} resize(); loop(); })();
+
+/* initialize */
+initGame();
 </script>
 </body>
 </html>
