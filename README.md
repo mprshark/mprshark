@@ -1,5 +1,3 @@
-```md
-<!-- Animated Header -->
 <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=32&duration=3000&pause=1000&color=00CFFF&center=true&vCenter=true&width=900&lines=Hey%2C+I'm+Pranshu+Pathak+%F0%9F%90%88;Full+Stack+%7C+Automation+%7C+Security;Founder+of+Automazior;Code.+Secure.+Automate.+Repeat." alt="Typing SVG" />
 </p>
@@ -149,4 +147,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=100&section=footer"/>
 </p>
-```
+
