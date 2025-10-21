@@ -1,0 +1,98 @@
+<svg width="360" height="210" xmlns="http://www.w3.org/2000/svg">
+<style>
+svg {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+#background {
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  fill: #00000000;
+  stroke: #8B8B8B22;
+  stroke-width: 1px;
+  rx: 6px;
+  ry: 6px;
+}
+
+foreignObject {
+  width: calc(100% - 10px - 32px);
+  height: calc(100% - 10px - 28px);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+th {
+  padding: 0.5em;
+  padding-top: 0;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(72, 148, 224);
+}
+
+td {
+  margin-bottom: 16px;
+  margin-top: 8px;
+  padding: 0.25em;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgb(145, 145, 145);
+}
+
+tr {
+  transform: translateY(500%);
+  animation-duration: 1s;
+  animation-name: slideIn;
+  animation-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.label {
+  font-weight: 600;
+  color: rgb(139, 139, 139);
+}
+
+.octicon {
+  fill: rgb(139, 139, 139);
+  margin-right: 1ch;
+  vertical-align: top;
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateY(0);
+  }
+}
+</style>
+
+<g>
+  <rect x="5" y="5" id="background" />
+  <g>
+    <foreignObject x="21" y="19" width="318" height="172">
+      <div xmlns="http://www.w3.org/1999/xhtml">
+        <table>
+          <thead>
+            <tr style="transform: translateX(0);">
+              <th colspan="2">Pranshu Pathak’s GitHub Statistics</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class='label'>⭐ Stars</td><td>2,079</td></tr>
+            <tr style="animation-delay: 150ms"><td class='label'>🍴 Forks</td><td>817</td></tr>
+            <tr style="animation-delay: 300ms"><td class='label'>🧩 All-time contributions</td><td>919</td></tr>
+            <tr style="animation-delay: 450ms"><td class='label'>💻 Lines of code changed</td><td>174,848</td></tr>
+            <tr style="animation-delay: 600ms"><td class='label'>👀 Repository views (past 2 weeks)</td><td>0</td></tr>
+            <tr style="animation-delay: 750ms"><td class='label'>📂 Repositories with contributions</td><td>19</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </foreignObject>
+  </g>
+</g>
+</svg>
