@@ -127,14 +127,10 @@ contact:
 
 ---
 
-## 📊 GitHub Insights
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=mprshark&show_icons=true&theme=tokyonight&count_private=true" height="160" alt="GitHub stats"/>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=mprshark&layout=compact&theme=tokyonight" height="160" alt="Top languages"/>
-</p>
+<h2 align="center">📊 GitHub Metrics</h2>
 
 <p align="center">
-  <img src="https://streak-stats.demolab.com?user=mprshark&theme=tokyonight&hide_border=true" height="120" alt="Streaks"/>
+  <img src="https://raw.githubusercontent.com/mprshark/mprshark/main/docs/github_insights.svg" width="80%" alt="mprshark GitHub Insights" />
 </p>
 
 ---
