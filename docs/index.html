@@ -3,124 +3,293 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Codebreaker — Terminal Heist</title>
+<title>Codebreaker — Terminal Heist (Visual Edition)</title>
 <style>
   :root{
-    /* style variables — change to match README colors */
     --bg:#05060a;
     --panel:#071017;
-    --green:#00ff99;
-    --muted:#7b8a93;
     --accent:#00d1ff;
+    --neon:#00ff9c;
+    --muted:#7b8a93;
     --glass: rgba(255,255,255,0.02);
+    --radius:12px;
+    --glass-2: rgba(255,255,255,0.015);
   }
-  html,body{height:100%;margin:0;background:var(--bg);font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;color:var(--green);}
-  canvas#matrix{position:fixed;inset:0;z-index:0;opacity:0.14}
-  .wrap{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#010205 0%, #02030a 60%);font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;color:var(--neon);-webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+  a{color:var(--accent)}
+  /* canvas layers */
+  canvas#matrix{position:fixed;inset:0;z-index:0;opacity:0.12;filter:blur(0.4px)}
+  canvas#confetti{position:fixed;inset:0;z-index:120;pointer-events:none}
+  .wrap{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px 20px;}
   .panel{
-    width:min(980px,94%);
-    max-width:1100px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border:1px solid rgba(0,255,150,0.06);
-    border-radius:12px;padding:18px;box-shadow:0 8px 40px rgba(0,0,0,0.6);backdrop-filter: blur(6px);
+    width:min(1100px,96%);max-width:1160px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(0,255,150,0.06);border-radius:var(--radius);padding:18px;box-shadow:0 16px 60px rgba(0,0,0,0.7);backdrop-filter: blur(8px);
   }
   header{display:flex;gap:12px;align-items:center}
-  .logo{
-    width:56px;height:56px;border-radius:8px;background:linear-gradient(90deg,#00101a,#002b3a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#001;box-shadow:0 2px 8px rgba(0,0,0,0.6);border:1px solid rgba(0,255,150,0.05)
-  }
+  .logo{width:72px;height:72px;border-radius:12px;background:linear-gradient(90deg,#00131a,#002b3a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#001;box-shadow:0 6px 22px rgba(0,255,150,0.04);border:1px solid rgba(0,255,150,0.05);font-size:18px}
   h1{margin:0;font-size:20px;color:var(--accent);letter-spacing:0.6px}
-  p.lead{margin:0;color:var(--muted);font-size:12px}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+  .top-row{display:flex;gap:12px;align-items:center;margin-top:12px}
+  /* Visual dock */
+  .dock{
+    display:flex;gap:12px;align-items:center;
+    flex-wrap:wrap;
+  }
+  .badge{
+    background:linear-gradient(120deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:10px;padding:10px 12px;border:1px solid rgba(0,255,150,0.04);min-width:120px;display:flex;gap:10px;align-items:center;justify-content:flex-start;
+  }
+  .badge .dot{width:12px;height:12px;border-radius:999px;background:var(--neon);box-shadow:0 0 12px rgba(0,255,150,0.12)}
+  .badge small{color:var(--muted);display:block;font-size:12px}
+  .badge strong{display:block;color:var(--accent)}
+  /* main area split */
+  .main{display:grid;grid-template-columns:380px 1fr;gap:18px;margin-top:16px}
+  /* left: visual controls */
+  .left{
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .panel-card{
+    background:var(--panel);border-radius:10px;padding:12px;border:1px solid var(--glass-2);
+  }
+  /* lock visual */
+  .lock{
+    display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;padding:18px;border-radius:10px;background:linear-gradient(180deg, rgba(0,0,0,0.15), rgba(255,255,255,0.01));box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);
+  }
+  .lock .digits{display:flex;gap:8px}
+  .digit{
+    width:48px;height:56px;border-radius:8px;background:linear-gradient(180deg,#001116,#00252f);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(0,255,150,0.04);box-shadow:0 6px 24px rgba(0,255,150,0.02) inset}
+  }
+  .lock h3{margin:0;color:var(--accent);font-size:14px}
+  .glow{position:relative;border-radius:8px;padding:6px 10px;background:linear-gradient(90deg, rgba(0,255,150,0.04), rgba(0,209,255,0.02));box-shadow:0 6px 28px rgba(0,255,150,0.04)}
+  /* memory visual */
+  .memory-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .mem-card{width:60px;height:60px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#021;background:#0f0f10;border:2px solid rgba(255,255,255,0.02);cursor:default;box-shadow:0 6px 18px rgba(0,0,0,0.6)}
+  .mem-R{background:linear-gradient(180deg,#3e0000,#6b0000);color:#ffd;}
+  .mem-G{background:linear-gradient(180deg,#003e00,#006b00);color:#cff;}
+  .mem-B{background:linear-gradient(180deg,#00033e,#00116b);color:#cff;}
+  .mem-Y{background:linear-gradient(180deg,#3e3a00,#6b6200);color:#222;}
+  /* pattern pads */
+  .pads{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .pad{height:80px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#001;background:#0f0f10;cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+  .pad0{background:linear-gradient(180deg,#ff7b7b,#ff3b3b)}
+  .pad1{background:linear-gradient(180deg,#7bff7b,#3bff3b)}
+  .pad2{background:linear-gradient(180deg,#7bb2ff,#3b8bff)}
+  .pad3{background:linear-gradient(180deg,#fff57b,#ffdf3b)}
+  .pad.glow{filter:brightness(1.4);box-shadow:0 8px 40px rgba(0,0,0,0.6), 0 0 18px rgba(255,255,255,0.04) inset}
+  /* right: terminal */
   .terminal{
-    margin-top:14px;background:linear-gradient(180deg,#02040a33,#02040a11);border-radius:8px;padding:14px;border:1px solid rgba(0,255,150,0.03);min-height:420px;overflow:hidden;position:relative;
+    background:linear-gradient(180deg,#02040a44,#02040a11);border-radius:10px;padding:12px;border:1px solid rgba(0,255,150,0.03);min-height:420px;overflow:hidden;position:relative;
   }
-  .screen{
-    height:100%;overflow:auto;padding-right:6px;
-    white-space:pre-wrap;font-size:13px;line-height:1.5;color:var(--green);
-  }
+  .screen{height:100%;overflow:auto;padding-right:6px;white-space:pre-wrap;font-size:13px;line-height:1.45;color:var(--neon);font-family:inherit}
   .prompt{display:flex;gap:8px;align-items:flex-start;margin-top:8px}
-  .prompt .pfx{color:var(--accent);min-width:90px}
-  input.cmd{
-    flex:1;background:transparent;border:0;color:var(--green);outline:none;font-family:inherit;font-size:13px;
-    caret-color:var(--accent);
-  }
+  .prompt .pfx{color:var(--accent);min-width:120px}
+  input.cmd{flex:1;background:transparent;border:0;color:var(--neon);outline:none;font-family:inherit;font-size:13px;caret-color:var(--accent)}
   .btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
   .btn{background:transparent;border:1px dashed rgba(0,255,150,0.06);color:var(--muted);padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer}
   .btn:hover{color:var(--accent);border-color:rgba(0,255,150,0.12)}
-  .hint{color:#9bd; font-size:13px}
   footer.small{margin-top:12px;color:var(--muted);font-size:12px;text-align:right}
+  .status-bars{display:flex;gap:10px;align-items:center;margin-top:8px}
+  .bar{height:10px;border-radius:999px;background:linear-gradient(90deg,#001 0%, rgba(255,255,255,0.02) 100%);flex:1;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+  .bar > i{position:absolute;left:0;top:0;bottom:0;width:50%;background:linear-gradient(90deg,var(--neon),var(--accent));transform-origin:left;transition:width 400ms linear}
+  .attempts{width:120px;text-align:center;color:var(--muted);font-size:12px}
+  /* fancy cursor */
+  .cursor{display:inline-block;width:8px;height:18px;background:var(--neon);vertical-align:middle;margin-left:6px;animation: blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  /* small visuals */
+  .muted{color:var(--muted)}
   .success{color:#7cffb2}
   .fail{color:#ff6b6b}
-  .meta{color:var(--muted);font-size:12px}
-  .score{display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(0,255,150,0.04);color:var(--accent);border:1px solid rgba(0,255,150,0.06);font-weight:600}
-  a.link{color:var(--accent);text-decoration:none}
-  /* small responsive */
-  @media (max-width:640px){
-    .logo{width:46px;height:46px}
-    h1{font-size:16px}
-  }
+  /* modal */
+  .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);z-index:200;background:linear-gradient(180deg,#001 0%, #022);padding:18px;border-radius:12px;border:1px solid rgba(0,255,150,0.06);min-width:320px;box-shadow:0 30px 120px rgba(0,0,0,0.7);opacity:0;pointer-events:none;transition:all 260ms ease}
+  .modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+  .modal h2{margin:0;color:var(--accent);font-size:18px}
+  /* small */
+  @media (max-width:920px){ .main{grid-template-columns:1fr; } .left{order:2} .terminal{order:1} .logo{width:56px;height:56px}}
 </style>
 </head>
 <body>
 <canvas id="matrix"></canvas>
+<canvas id="confetti" width="0" height="0"></canvas>
+
 <div class="wrap">
-  <div class="panel" role="application" aria-label="Codebreaker Terminal">
+  <div class="panel" role="application">
     <header>
       <div class="logo">CP</div>
-      <div>
+      <div style="flex:1">
         <h1>Codebreaker — Terminal Heist</h1>
-        <p class="lead">A hacker-puzzle. Type <code>help</code> to begin. Host via GitHub Pages (<code>/docs/index.html</code>).</p>
+        <p class="lead">Play daily puzzles — type <code>help</code>. Visual edition with levels & sound.</p>
       </div>
-      <div style="margin-left:auto;text-align:right">
-        <div class="meta">Player: <span id="playerName">anonymous</span></div>
-        <div class="meta">Best: <span id="bestScore">—</span></div>
+      <div style="text-align:right">
+        <div class="muted">Player: <strong id="playerName">anonymous</strong></div>
+        <div class="muted">Best: <span id="bestScore">—</span></div>
       </div>
     </header>
 
-    <div class="terminal" id="terminal">
-      <div class="screen" id="screen">
-        <div style="color:var(--muted)">Booting secure shell...</div>
+    <div class="top-row">
+      <div class="dock">
+        <div class="badge"><div class="dot"></div><div><small>Level</small><strong id="levelBadge">codebreaker</strong></div></div>
+        <div class="badge"><div style="width:12px;height:12px;border-radius:4px;background:var(--accent);margin-right:8px;"></div><div><small>Attempts</small><strong id="attemptsBadge">8</strong></div></div>
+        <div class="badge"><div style="width:12px;height:12px;border-radius:4px;background:var(--neon);margin-right:8px;"></div><div><small>Integrity</small><strong id="integrityBadge">100%</strong></div></div>
       </div>
 
-      <div class="prompt" aria-hidden>
-        <div class="pfx">&gt; mprshark@home</div>
-        <input id="cmd" class="cmd" placeholder="type a command (help)" autocomplete="off" spellcheck="false" />
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+        <!-- animated header visual (capsule) -->
+        <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=70&section=header&text=Welcome" style="height:70px;border-radius:8px" alt="header"/>
+        <!-- hello svg placeholder -->
+        <div id="hello-slot" style="width:270px;height:75px"></div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="left">
+        <div class="panel-card">
+          <div class="lock">
+            <h3>Digital Lock</h3>
+            <div class="digits" id="lockDigits">
+              <div class="digit">•</div>
+              <div class="digit">•</div>
+              <div class="digit">•</div>
+              <div class="digit">•</div>
+            </div>
+            <div style="margin-top:8px" class="muted">Enter code with <code>submit 1234</code></div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <strong class="muted">Memory</strong>
+              <div class="muted" style="font-size:12px">Watch the sequence</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn" onclick="enter('level memory')">Play</button>
+              <button class="btn" onclick="enter('memory R G B Y R')">Test</button>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="memory-grid" id="memoryGrid">
+            <!-- cards injected here -->
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <strong class="muted">Pattern (Simon)</strong>
+              <div class="muted" style="font-size:12px">Click the pads in order</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn" onclick="enter('level pattern')">Play</button>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="pads" id="pads">
+            <div class="pad pad0" data-id="0" onclick="padClick(0)">0</div>
+            <div class="pad pad1" data-id="1" onclick="padClick(1)">1</div>
+            <div class="pad pad2" data-id="2" onclick="padClick(2)">2</div>
+            <div class="pad pad3" data-id="3" onclick="padClick(3)">3</div>
+          </div>
+        </div>
+
+        <div class="panel-card" style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong class="muted">Controls</strong></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn" onclick="enter('reset')">Reset</button>
+              <button class="btn" onclick="enter('scan')">Scan</button>
+              <button class="btn" onclick="enter('hint')">Hint</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="attempts">Attempts</div>
+            <div class="bar" style="flex:1"><i id="attemptBar" style="width:100%"></i></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="attempts">Integrity</div>
+            <div class="bar" style="flex:1"><i id="integrityBar" style="width:100%"></i></div>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px">
+            <div class="muted">Sound</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="btn" onclick="toggleSound()">🔊</button>
+              <input id="volume" type="range" min="0" max="0.08" step="0.005" value="0.03" style="width:120px" />
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="btns" aria-hidden>
-        <button class="btn" onclick="enter('help')">help</button>
-        <button class="btn" onclick="enter('scan')">scan</button>
-        <button class="btn" onclick="enter('hint')">hint</button>
-        <button class="btn" onclick="enter('analyze')">analyze</button>
-        <button class="btn" onclick="enter('status')">status</button>
-        <button class="btn" onclick="enter('reset')">reset</button>
-        <button class="btn" onclick="toggleSound()">🔊 sound</button>
-        <button class="btn" onclick="enter('level memory')">level:memory</button>
-        <button class="btn" onclick="enter('level pattern')">level:pattern</button>
-        <button class="btn" onclick="enter('level cipher')">level:cipher</button>
-      </div>
+      <div class="terminal" id="terminal">
+        <div class="screen" id="screen">
+          <div style="color:var(--muted)">Booting secure shell...</div>
+        </div>
 
-      <footer class="small">Attempts left: <span id="attempts">8</span> • Integrity: <span id="integrity">100%</span></footer>
+        <div class="prompt" aria-hidden>
+          <div class="pfx">&gt; mprshark@home</div>
+          <input id="cmd" class="cmd" placeholder="type a command (help)" autocomplete="off" spellcheck="false" />
+          <div class="cursor" id="fakeCursor" title="blinking cursor" aria-hidden></div>
+        </div>
+
+        <div class="btns" aria-hidden>
+          <button class="btn" onclick="enter('help')">help</button>
+          <button class="btn" onclick="enter('scan')">scan</button>
+          <button class="btn" onclick="enter('hint')">hint</button>
+          <button class="btn" onclick="enter('analyze')">analyze</button>
+          <button class="btn" onclick="enter('status')">status</button>
+          <button class="btn" onclick="enter('share')">share</button>
+          <button class="btn" onclick="enter('level codebreaker')">level:codebreaker</button>
+        </div>
+
+        <footer class="small">Attempts left: <span id="attempts">8</span> • Integrity: <span id="integrity">100%</span></footer>
+      </div>
     </div>
 
   </div>
 </div>
 
-<script>
-/* CONFIG */
-const GITHUB_USER = "mprshark";   // update if needed
-const GITHUB_REPO = "mprshark";   // update if needed
+<!-- modal -->
+<div class="modal" id="winModal" aria-hidden="true">
+  <h2>Level Cleared 🎉</h2>
+  <div id="winDetails" style="color:var(--muted);margin-top:8px"></div>
+  <div style="margin-top:12px;text-align:right">
+    <button class="btn" onclick="closeModal()">Close</button>
+    <button class="btn" onclick="enter('share')">Share</button>
+  </div>
+</div>
 
-/* DOM */
+<script>
+/* ============================================
+  Visual Edition — Codebreaker Terminal v1.3
+  - Paste into /docs/index.html and host via Pages
+  - Enhancements: visuals, confetti, pads, memory grid, volume control
+============================================ */
+
+// CONFIG (set to your repo)
+const GITHUB_USER = "mprshark";
+const GITHUB_REPO = "mprshark";
+
+/* DOM refs */
 const screen = document.getElementById('screen');
 const cmdEl = document.getElementById('cmd');
 const attemptsEl = document.getElementById('attempts');
 const integrityEl = document.getElementById('integrity');
 const playerNameEl = document.getElementById('playerName');
 const bestScoreEl = document.getElementById('bestScore');
+const levelBadge = document.getElementById('levelBadge');
+const lockDigits = document.getElementById('lockDigits');
+const attemptBar = document.getElementById('attemptBar');
+const integrityBar = document.getElementById('integrityBar');
+const memoryGrid = document.getElementById('memoryGrid');
+const pads = document.getElementById('pads');
+const helloSlot = document.getElementById('hello-slot');
+const confettiCanvas = document.getElementById('confetti');
 
-/* STATE */
+/* State */
 let state = {
-  level: 'codebreaker', // 'codebreaker' (default), 'memory', 'pattern', 'cipher'
+  level: 'codebreaker',
   code: null,
   attempts: 8,
   integrity: 100,
@@ -132,117 +301,180 @@ let state = {
   memProgress: 0,
   patternSeq: [],
   patternProgress: 0,
-  cipherKey: 3
+  cipherKey: 3,
+  soundEnabled: JSON.parse(localStorage.getItem('cb_sound') || 'false'),
+  volume: Number(localStorage.getItem('cb_volume') || 0.03)
 };
 
+/* init UI values */
 playerNameEl.textContent = state.name;
 bestScoreEl.textContent = localStorage.getItem('cb_best') || '—';
+document.getElementById('volume').value = state.volume;
 
-/* SOUND: accessible simple beep; respects prefers-reduced-motion and a toggle */
+/* SOUND (improved) */
 let audioCtx = null;
-let soundEnabled = JSON.parse(localStorage.getItem('cb_sound') || 'false');
-function ensureAudio() {
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
+function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function beep(freq=880, duration=60, vol=0.02){
-  // Respect prefers-reduced-motion/animation as accessibility preference
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if(!soundEnabled) return;
+  if(!state.soundEnabled) return;
   ensureAudio();
   const o = audioCtx.createOscillator();
   const g = audioCtx.createGain();
-  o.type = 'sine';
-  o.frequency.value = freq;
-  g.gain.value = vol;
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.value = vol * state.volume;
   o.connect(g); g.connect(audioCtx.destination);
   o.start();
-  setTimeout(()=>{ o.stop(); }, duration);
+  setTimeout(()=>o.stop(), duration);
 }
 function toggleSound(){
-  soundEnabled = !soundEnabled;
-  localStorage.setItem('cb_sound', JSON.stringify(soundEnabled));
-  printLine(soundEnabled ? "Sound enabled." : "Sound disabled.");
-  beep(880, 80, 0.03);
+  state.soundEnabled = !state.soundEnabled;
+  localStorage.setItem('cb_sound', JSON.stringify(state.soundEnabled));
+  printLine(state.soundEnabled ? "Sound enabled." : "Sound disabled.");
+  if(state.soundEnabled) { ensureAudio(); beep(880,80,0.02); }
 }
 
-/* DAILY CODE: deterministic UTC-seeded (already uses UTC) */
-function generateCode() {
+/* HELPER: show hello svg if present */
+(async function loadHello(){
+  try {
+    // try to fetch docs/hello.svg if exists
+    const u = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/docs/hello.svg`;
+    const r = await fetch(u);
+    if(r.ok){
+      const svg = await r.text();
+      helloSlot.innerHTML = svg;
+    } else {
+      // fallback tiny svg
+      helloSlot.innerHTML = `<svg width="270" height="75" viewBox="0 0 270 75" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace" font-size="20">Hello</text></svg>`;
+    }
+  } catch(e){
+    helloSlot.innerHTML = `<svg width="270" height="75" viewBox="0 0 270 75" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace" font-size="20">Hello</text></svg>`;
+  }
+})();
+
+/* DAILY CODE generation (UTC-based) */
+function generateCode(){
   const d = new Date();
   const seed = state.name + d.getUTCFullYear() + (d.getUTCMonth()+1) + d.getUTCDate();
-  let h = 0; for (let i=0;i<seed.length;i++){ h = (h*31 + seed.charCodeAt(i)) >>> 0; }
+  let h = 0; for(let i=0;i<seed.length;i++) h = (h*31 + seed.charCodeAt(i)) >>> 0;
   const a = (h ^ (h<<5)) >>> 0;
   const digits = (''+ (10000 + (a % 9000))).slice(-4);
   return digits;
 }
 
-/* Additional: memory/pattern/cipher generation helpers */
+/* level helpers */
 function genMemorySeq(len=5){
-  const chars = 'R G B Y'.split(' ');
-  const seq = [];
-  for(let i=0;i<len;i++) seq.push(chars[Math.floor(Math.random()*chars.length)]);
+  const chars = ['R','G','B','Y'];
+  const seq = []; for(let i=0;i<len;i++) seq.push(chars[Math.floor(Math.random()*chars.length)]);
   return seq;
 }
-function genPattern(len=5){
-  // pattern as digits 0-3
-  const seq = [];
-  for(let i=0;i<len;i++) seq.push(Math.floor(Math.random()*4));
-  return seq;
-}
-function genCipherKey(){
-  state.cipherKey = 1 + Math.floor(Math.random()*9); // shift 1..9
+function genPattern(len=6){ const seq=[]; for(let i=0;i<len;i++) seq.push(Math.floor(Math.random()*4)); return seq; }
+function genCipherKey(){ state.cipherKey = 1 + Math.floor(Math.random()*9); }
+
+/* UI utilities */
+function clearScreen(){ screen.innerHTML = ''; }
+function printLine(txt, cls=''){ const div=document.createElement('div'); if(cls) div.classList.add(cls); div.textContent = txt; screen.appendChild(div); screen.scrollTop = screen.scrollHeight; beep(880,30,0.01); }
+function printHtml(html){ const div=document.createElement('div'); div.innerHTML = html; screen.appendChild(div); screen.scrollTop = screen.scrollHeight; }
+function renderStatus(){ attemptsEl.textContent = state.attempts; integrityEl.textContent = Math.max(0, Math.round(state.integrity)) + '%'; attemptBar.style.width = (state.attempts/8*100) + '%'; integrityBar.style.width = Math.max(0, state.integrity) + '%'; document.getElementById('attemptsBadge').textContent = state.attempts; document.getElementById('integrityBadge').textContent = Math.max(0, Math.round(state.integrity)) + '%'; levelBadge.textContent = state.level; }
+
+/* game init */
+function initGame(){ state.code = generateCode(); state.attempts=8; state.integrity=100; state.startedAt=Date.now(); state.solved=false; state.hintsGiven=0; state.memorySeq=genMemorySeq(5); state.memProgress=0; state.patternSeq=genPattern(6); state.patternProgress=0; genCipherKey(); renderStatus(); clearScreen(); printLine("== CODEBREAKER TERMINAL v1.3 (visual) =="); printLine(`Active level: ${state.level}`); printLine("Welcome, operator. Type 'help' to view commands."); updateLockDigits(); populateMemoryGrid(); }
+
+/* lock UI */
+function updateLockDigits(mask=true){
+  const digits = state.solved ? state.code.split('') : (state.code ? state.code.split('').map(()=> '•') : ['•','•','•','•']);
+  const children = lockDigits.children;
+  for(let i=0;i<4;i++){ if(children[i]) children[i].textContent = digits[i] || '•'; }
 }
 
-/* INIT */
-function initGame() {
-  state.code = generateCode();
-  state.attempts = 8;
-  state.integrity = 100;
-  state.startedAt = Date.now();
-  state.solved = false;
-  state.hintsGiven = 0;
-  // prepare secondary levels
-  state.memorySeq = genMemorySeq(5);
-  state.memProgress = 0;
-  state.patternSeq = genPattern(6);
-  state.patternProgress = 0;
-  genCipherKey();
-  renderStatus();
-  clearScreen();
-  printLine("== CODEBREAKER TERMINAL v1.2 ==");
-  printLine(`Active level: ${state.level}`);
-  printLine("Welcome, operator. Type 'help' to view commands.");
+/* memory UI */
+function populateMemoryGrid(){
+  memoryGrid.innerHTML = '';
+  const seq = state.memorySeq;
+  seq.forEach(s=>{
+    const d = document.createElement('div');
+    d.className = 'mem-card mem-' + s;
+    d.textContent = s;
+    memoryGrid.appendChild(d);
+  });
 }
 
-function clearScreen() { screen.innerHTML = ''; }
-function printLine(txt, cls='') {
-  const div = document.createElement('div');
-  if (cls) div.classList.add(cls);
-  div.textContent = txt;
-  screen.appendChild(div);
-  screen.scrollTop = screen.scrollHeight;
-  beep(880,35,0.01);
-}
-function printHtml(html) {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  screen.appendChild(div);
-  screen.scrollTop = screen.scrollHeight;
+/* pattern UI: clicked pads */
+function padClick(id){
+  if(state.level !== 'pattern') { flashPad(id); return; }
+  // collect user click
+  userPatternInput.push(id);
+  flashPad(id);
+  // check progressively
+  const idx = userPatternInput.length -1;
+  if(userPatternInput[idx] !== state.patternSeq[idx]) {
+    // fail
+    state.attempts--; state.integrity -= 6; renderStatus();
+    printLine("Pattern mismatch.", 'fail');
+    userPatternInput = [];
+    return;
+  }
+  if(userPatternInput.length === state.patternSeq.length){
+    printLine("Pattern matched. Level cleared!", 'success');
+    afterLevelSolve();
+    userPatternInput = [];
+  }
 }
 
-function renderStatus(){
-  attemptsEl.textContent = state.attempts;
-  integrityEl.textContent = Math.max(0, Math.round(state.integrity)) + "%";
+/* pad animation */
+function flashPad(id){
+  const node = pads.querySelector(`[data-id="${id}"]`);
+  if(!node) return;
+  node.classList.add('glow');
+  beep(600 + id*120, 120, 0.02);
+  setTimeout(()=>node.classList.remove('glow'), 350);
 }
 
-/* Input handling */
-function enter(text) {
-  const input = text || cmdEl.value.trim();
-  if (!input) return;
-  runCommand(input);
-  cmdEl.value = '';
-  cmdEl.focus();
+/* confetti */
+const confettiCtx = confettiCanvas.getContext ? confettiCanvas.getContext('2d') : null;
+let confettiPieces = [];
+function resizeConfetti(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+window.addEventListener('resize', resizeConfetti);
+function spawnConfetti(){
+  if(!confettiCtx) return;
+  confettiPieces = [];
+  const count = 70;
+  for(let i=0;i<count;i++){
+    confettiPieces.push({
+      x: Math.random()*innerWidth,
+      y: -Math.random()*innerHeight,
+      vx: (Math.random()-0.5)*3,
+      vy: 2 + Math.random()*4,
+      size: 6 + Math.random()*8,
+      hue: Math.random()*360,
+      rot: Math.random()*360,
+      spin: (Math.random()-0.5)*0.2
+    });
+  }
+  requestAnimationFrame(confettiLoop);
 }
-function runCommand(raw) {
+function confettiLoop(){
+  if(!confettiCtx) return;
+  confettiCtx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  for(let p of confettiPieces){
+    p.x += p.vx; p.y += p.vy; p.rot += p.spin;
+    confettiCtx.save();
+    confettiCtx.translate(p.x,p.y);
+    confettiCtx.rotate(p.rot);
+    confettiCtx.fillStyle = `hsl(${p.hue} 80% 60%)`;
+    confettiCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+    confettiCtx.restore();
+  }
+  confettiPieces = confettiPieces.filter(p => p.y < innerHeight + 50);
+  if(confettiPieces.length) requestAnimationFrame(confettiLoop);
+}
+
+/* modal */
+function openModal(details){ const m = document.getElementById('winModal'); document.getElementById('winDetails').textContent = details; m.classList.add('show'); }
+function closeModal(){ const m = document.getElementById('winModal'); m.classList.remove('show'); }
+
+/* Commands */
+function enter(text){ const input = (text || cmdEl.value || '').trim(); if(!input) return; runCommand(input); cmdEl.value=''; cmdEl.focus(); }
+function runCommand(raw){
   printHtml(`<div style="color:${raw.startsWith('submit')?'#9bf':'var(--accent)'}">&gt; ${raw}</div>`);
   const parts = raw.split(/\s+/);
   const cmd = parts[0].toLowerCase();
@@ -261,243 +493,168 @@ function runCommand(raw) {
     case 'memory': level_memory_input(arg); break;
     case 'pattern': level_pattern_input(arg); break;
     case 'cipher': level_cipher_input(arg); break;
-    default:
-      printLine("Unknown command. Type 'help' for available commands.",'fail');
+    default: printLine("Unknown command. Type 'help' for available commands.",'fail');
   }
 }
 
-/* COMMANDS */
+/* command implementations */
 function cmd_help(){
   printLine("Available commands: help, scan, hint, analyze, bruteforce, submit <code>, status, reset, share, level <codebreaker|memory|pattern|cipher>");
-  printLine("When playing 'memory' type: memory <space-separated sequence>");
-  printLine("When playing 'pattern' type: pattern <comma-separated numbers> e.g. 0,1,3");
-  printLine("When playing 'cipher' type: cipher <decoded-text>");
+  printLine("Memory: memory R G B Y R");
+  printLine("Pattern: pattern 0,1,2 (indices 0..3)");
+  printLine("Cipher: cipher <plaintext> (decode sample)");
 }
-function cmd_scan(){
-  printLine("Scanning target node...");
-  sleep(400).then(()=> {
-    const code = state.code;
-    const sum = code.split('').reduce((s,d)=>s+Number(d),0);
-    const parity = code.split('').map(d=>d%2?'1':'0').join('');
-    const pos = Math.floor(code[1]);
-    printLine(`Artifacts: checksum=${sum}, parity-mask=${parity.slice(0,4)}, frag-index=${pos}`);
-    state.hintsGiven++;
-    renderStatus();
-  });
-}
-
-function cmd_hint(){
-  if(state.hintsGiven===0){
-    printLine("Hint 1: Sum digits equals " + state.code.split('').reduce((s,d)=>s+Number(d),0));
-  } else if(state.hintsGiven===1){
-    printLine("Hint 2: Second digit = number of letters in username mod 10 -> " + (state.name.length % 10));
-  } else if(state.hintsGiven===2){
-    printLine("Hint 3: Last two digits = (username charcodes sum) mod 100 -> " + (usernameCharSum()%100).toString().padStart(2,'0'));
-  } else {
-    printLine("No more free hints. Use 'analyze' for deeper inspection (costs integrity).");
-  }
-  state.hintsGiven++;
-  renderStatus();
-}
+function cmd_scan(){ printLine("Scanning target node..."); sleep(400).then(()=>{ const code = state.code; const sum = code.split('').reduce((s,d)=>s+Number(d),0); const parity = code.split('').map(d=>d%2?'1':'0').join(''); const pos = Math.floor(code[1]); printLine(`Artifacts: checksum=${sum}, parity-mask=${parity.slice(0,4)}, frag-index=${pos}`); state.hintsGiven++; renderStatus(); }); }
+function cmd_hint(){ if(state.hintsGiven===0){ printLine("Hint 1: Sum digits equals " + state.code.split('').reduce((s,d)=>s+Number(d),0)); } else if(state.hintsGiven===1){ printLine("Hint 2: Second digit = number of letters in username mod 10 -> " + (state.name.length % 10)); } else if(state.hintsGiven===2){ printLine("Hint 3: Last two digits = (username charcodes sum) mod 100 -> " + (usernameCharSum()%100).toString().padStart(2,'0')); } else { printLine("No more free hints. Use 'analyze' for deeper inspection (costs integrity)."); } state.hintsGiven++; renderStatus(); }
 function usernameCharSum(){ return state.name.split('').reduce((s,c)=>s + c.charCodeAt(0),0); }
+function cmd_analyze(){ printLine("Running heavy analysis... (cost: 12% integrity)"); state.integrity -= 12; renderStatus(); sleep(700).then(()=>{ const c = state.code; printLine("Analysis report:"); printLine(` - Digit pattern: [${c[0]}][${c[1]}][x][${c[3]}]  (third digit masked)`); printLine(` - Hint: The third digit equals ( (first XOR second) mod 10 )`); }); }
+function cmd_bruteforce(){ printLine("Brute-forcing simulation started (consumes 2 attempts)..."); state.attempts = Math.max(0, state.attempts - 2); state.integrity -= 6; renderStatus(); sleep(800).then(()=>{ const c=state.code; printLine(`Brute force found probable pattern: ${c[0]}?${c[3]} (one digit uncertain)`); }); }
 
-function cmd_analyze(){
-  printLine("Running heavy analysis... (cost: 12% integrity)");
-  state.integrity -= 12;
-  renderStatus();
-  sleep(700).then(()=>{
-    const c = state.code;
-    printLine("Analysis report:");
-    printLine(` - Digit pattern: [${c[0]}][${c[1]}][x][${c[3]}]  (third digit masked)`);
-    printLine(` - Hint: The third digit equals ( (first XOR second) mod 10 )`);
-  });
-}
-
-function cmd_bruteforce(){
-  printLine("Brute-forcing simulation started (consumes 2 attempts)...");
-  state.attempts = Math.max(0, state.attempts - 2);
-  state.integrity -= 6; renderStatus();
-  sleep(800).then(()=>{
-    const c=state.code;
-    printLine(`Brute force found probable pattern: ${c[0]}?${c[3]} (one digit uncertain)`);
-  });
-}
-
+/* submit (multi-level) */
 function cmd_submit(arg){
-  if(state.level === 'codebreaker'){
-    submit_codebreaker(arg);
-  } else if(state.level === 'memory'){
-    level_memory_input(arg);
-  } else if(state.level === 'pattern'){
-    level_pattern_input(arg);
-  } else if(state.level === 'cipher'){
-    level_cipher_input(arg);
-  } else {
-    printLine("No valid level selected.", 'fail');
-  }
+  if(state.level === 'codebreaker') submit_codebreaker(arg);
+  else if(state.level === 'memory') level_memory_input(arg);
+  else if(state.level === 'pattern') level_pattern_input(arg);
+  else if(state.level === 'cipher') level_cipher_input(arg);
+  else printLine("No valid level selected.", 'fail');
 }
-
-/* CODEBREAKER submit */
 function submit_codebreaker(arg){
   if(!arg || !/^\d{4}$/.test(arg)){ printLine("Usage: submit <4-digit-code>",'fail'); return; }
   if(state.solved){ printLine("Already solved — reset to play again.", 'meta'); return; }
   if(state.attempts<=0){ printLine("No attempts left. Reset to try again.",'fail'); return; }
   if(arg === state.code){
     const took = Math.round((Date.now() - state.startedAt)/1000);
-    printLine("ACCESS GRANTED — code accepted.",'success');
-    printLine(`Time: ${took}s • Attempts used: ${8 - state.attempts} • Hints: ${state.hintsGiven}`);
-    state.solved = true;
+    printLine("ACCESS GRANTED — code accepted.",'success'); printLine(`Time: ${took}s • Attempts used: ${8 - state.attempts} • Hints: ${state.hintsGiven}`);
+    state.solved = true; updateLockDigits(true);
     const score = took + (state.hintsGiven*10) + ((8 - state.attempts)*5);
     const best = Number(localStorage.getItem('cb_best')||0);
-    if(!best || score < best){
-      localStorage.setItem('cb_best', score);
-      localStorage.setItem('cb_best_name', state.name);
-      bestScoreEl.textContent = score;
-      printLine("New personal best! Use 'share' to post to the repo.", 'success');
-    } else {
-      printLine("Score: " + score, 'meta');
-    }
+    if(!best || score < best){ localStorage.setItem('cb_best', score); localStorage.setItem('cb_best_name', state.name); bestScoreEl.textContent = score; printLine("New personal best! Use 'share' to post to the repo.", 'success'); }
     printLine("Type 'share' to open a pre-filled GitHub issue to record your win.", 'meta');
+    // celebration
+    spawnConfetti(); openModal(`Level: ${state.level} — Score: ${score}`);
   } else {
-    state.attempts--;
-    state.integrity -= 8;
-    renderStatus();
-    printLine("ACCESS DENIED — wrong code.", 'fail');
+    state.attempts--; state.integrity -= 8; renderStatus(); printLine("ACCESS DENIED — wrong code.", 'fail');
     if(state.attempts<=0) printLine("SYSTEM LOCKDOWN — no attempts left. Reset to play again.", 'fail');
     else printLine(`Attempts remaining: ${state.attempts}`, 'meta');
   }
 }
 
-/* LEVEL SWITCH */
+/* level switching */
 function cmd_level(arg){
-  if(!arg) { printLine("Usage: level <codebreaker|memory|pattern|cipher>"); return; }
+  if(!arg){ printLine("Usage: level <codebreaker|memory|pattern|cipher>"); return; }
   const lvl = arg.toLowerCase();
-  if(!['codebreaker','memory','pattern','cipher'].includes(lvl)) { printLine("Unknown level."); return; }
-  state.level = lvl;
-  printLine("Switched level to: " + lvl);
-  if(lvl==='memory') {
-    printLine("Memory sequence (watch):");
-    showMemorySequence();
-  } else if(lvl==='pattern') {
-    printLine("Pattern mode ready: type 'pattern 0,1,2' to answer; indices 0..3.");
-    showPatternSequence();
-  } else if(lvl==='cipher') {
-    printLine(`Cipher mode: decode Caesar shift of +${state.cipherKey}. Example: 'cipher secret' to submit decoded plain text.`);
-    printLine("To attempt: apply inverse of the shift to submit the original.");
-    // show a sample encoded phrase
-    const plain = "OPEN";
-    const encoded = caesarEncode(plain, state.cipherKey);
-    printLine(`Encoded sample: ${encoded}`);
-  }
+  if(!['codebreaker','memory','pattern','cipher'].includes(lvl)){ printLine("Unknown level."); return; }
+  state.level = lvl; printLine("Switched level to: " + lvl);
+  levelBadge.textContent = lvl;
+  if(lvl==='memory'){ printLine("Memory sequence (watch):"); showMemorySequence(); }
+  else if(lvl==='pattern'){ printLine("Pattern mode ready: click pads or use 'pattern 0,1,2' to answer; indices 0..3."); showPatternSequence(); }
+  else if(lvl==='cipher'){ genCipherKey(); printLine(`Cipher mode: decode Caesar shift of +${state.cipherKey}. Example: 'cipher OPEN' (submit plaintext).`); const encoded = caesarEncode("OPEN", state.cipherKey); printLine(`Encoded sample: ${encoded}`); }
 }
 
-/* MEMORY level: show and accept */
+/* MEMORY level */
 async function showMemorySequence(){
-  // reveal items one by one
-  for(let i=0;i<state.memorySeq.length;i++){
-    printLine("• " + state.memorySeq[i]);
-    beep(600 + i*80, 70, 0.01);
-    await sleep(400);
+  // visually show memory cards
+  const cards = memoryGrid.children;
+  for(let i=0;i<cards.length;i++){
+    const c = cards[i];
+    c.style.transform = 'scale(1.12)'; c.style.boxShadow = '0 12px 36px rgba(0,0,0,0.7) inset';
+    beep(600 + i*60, 110, 0.02);
+    await sleep(420);
+    c.style.transform = ''; c.style.boxShadow = '';
+    await sleep(160);
   }
   printLine("Now type: memory <sequence>  (e.g. memory R G B Y R)");
 }
 function level_memory_input(arg){
-  if(!arg){ printLine("Usage: memory <space separated sequence>"); return;}
+  if(!arg){ printLine("Usage: memory <space separated sequence>"); return; }
   const attempt = arg.trim().toUpperCase().split(/\s+/);
   if(attempt.join(',') === state.memorySeq.join(',')){
     printLine("Memory sequence correct. Level cleared!", 'success'); afterLevelSolve();
   } else {
-    state.attempts--; state.integrity -= 6; renderStatus();
-    printLine("Incorrect memory sequence.", 'fail');
+    state.attempts--; state.integrity -= 6; renderStatus(); printLine("Incorrect memory sequence.", 'fail');
   }
 }
 
-/* PATTERN level: Simon-like: show numbers 0..3 */
+/* PATTERN level */
+let userPatternInput = [];
 async function showPatternSequence(){
-  const s = state.patternSeq;
-  for(let i=0;i<s.length;i++){
-    printLine("⯈ " + s[i]);
-    beep(720 + (s[i]*60), 60, 0.01);
-    await sleep(400);
+  for(let i=0;i<state.patternSeq.length;i++){
+    const val = state.patternSeq[i];
+    flashPad(val); await sleep(420);
   }
-  printLine("Submit: pattern 0,1,2,3 (comma separated)");
+  printLine("Submit: pattern 0,1,2,3 (comma separated) or click pads.");
 }
 function level_pattern_input(arg){
   if(!arg){ printLine("Usage: pattern 0,1,2"); return; }
   const attempt = arg.split(',').map(x=>Number(x.trim()));
   if(attempt.join(',') === state.patternSeq.join(',')){
     printLine("Pattern matched. Level cleared!", 'success'); afterLevelSolve();
-  } else {
-    state.attempts--; state.integrity -= 6; renderStatus();
-    printLine("Pattern mismatch.", 'fail');
-  }
+  } else { state.attempts--; state.integrity -= 6; renderStatus(); printLine("Pattern mismatch.", 'fail'); }
 }
 
-/* CIPHER level: user submits decoded text (we store shift key) */
-function caesarEncode(str, shift){
-  return str.toUpperCase().split('').map(ch=>{
-    if(ch<'A'||ch>'Z') return ch;
-    const c = ((ch.charCodeAt(0)-65 + shift) % 26) +65;
-    return String.fromCharCode(c);
-  }).join('');
-}
-function caesarDecode(str, shift){
-  return caesarEncode(str, 26-shift);
-}
+/* CIPHER level helpers */
+function caesarEncode(str, shift){ return str.toUpperCase().split('').map(ch=>{ if(ch<'A'||ch>'Z') return ch; const c = ((ch.charCodeAt(0)-65 + shift) % 26) +65; return String.fromCharCode(c); }).join(''); }
 function level_cipher_input(arg){
   if(!arg){ printLine("Usage: cipher <decoded-text> (submit the plaintext)"); return; }
-  // user must supply plaintext which after encoding should equal our sample encoded phrase (for demo)
   const samplePlain = "OPEN";
-  const sampleEncoded = caesarEncode(samplePlain, state.cipherKey);
-  // allow them to submit plaintext equal to samplePlain OR a real check: any plaintext encoded equals target phrase stored
-  // For puzzle, we'll require they submit the correct plaintext for sampleEncoded
-  if(arg.trim().toUpperCase() === samplePlain){
-    printLine("Cipher solved. Level cleared!", 'success'); afterLevelSolve();
-  } else {
-    state.attempts--; state.integrity -= 6; renderStatus();
-    printLine("Wrong plaintext.", 'fail');
-  }
+  if(arg.trim().toUpperCase() === samplePlain){ printLine("Cipher solved. Level cleared!", 'success'); afterLevelSolve(); } else { state.attempts--; state.integrity -= 6; renderStatus(); printLine("Wrong plaintext.", 'fail'); }
 }
 
-/* After any level solved */
+/* solved flow */
 function afterLevelSolve(){
   state.solved = true;
   const took = Math.round((Date.now() - state.startedAt)/1000);
   printLine(`Level ${state.level} solved in ${took}s`);
-  printLine("Type 'share' to publish your win (opens an issue).");
+  spawnConfetti(); updateLockDigits(true);
+  const score = took + (state.hintsGiven*10) + ((8 - state.attempts)*5);
+  openModal(`Player: ${state.name}\nLevel: ${state.level}\nScore: ${score}\nTime: ${took}s`);
 }
 
-/* SHARE: prefill issue */
+/* share to issue */
 function cmd_share(){
-  if(!state.solved){ printLine("Solve first. Then share.", 'fail'); return; }
+  if(!state.solved){ printLine("Solve first. Then you can share your score.", 'fail'); return; }
   const took = Math.round((Date.now() - state.startedAt)/1000);
   const score = took + (state.hintsGiven*10) + ((8 - state.attempts)*5);
   const title = encodeURIComponent(`Codebreaker score by ${state.name} — ${score}`);
-  const body = encodeURIComponent([
-    `Player: ${state.name}`,
-    `Level: ${state.level}`,
-    `Score: ${score}`,
-    `Time: ${took}s`,
-    `Hints: ${state.hintsGiven}`,
-    `Attempts used: ${8 - state.attempts}`,
-    ``,
-    `Play: https://${GITHUB_USER}.github.io/${GITHUB_REPO}/`
-  ].join('\n'));
+  const body = encodeURIComponent(`Player: ${state.name}\nLevel: ${state.level}\nScore: ${score}\nTime: ${took}s\nHints: ${state.hintsGiven}\nAttempts used: ${8 - state.attempts}\n\nPlay: https://${GITHUB_USER}.github.io/${GITHUB_REPO}/`);
   const url = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}/issues/new?title=${title}&body=${body}`;
   printLine("Opening share link...");
   window.open(url,'_blank');
 }
 
-/* UTILITIES */
+/* misc */
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-cmdEl.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); enter(); } });
+cmdEl.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); enter(); }});
 window.enter = enter;
 
-/* matrix background (same as before) */
-(function matrix(){ const c=document.getElementById('matrix'); const ctx=c.getContext('2d'); let w,h; function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; init(); } window.addEventListener('resize',resize); const cols=[]; let fontSize=14; function init(){ fontSize = Math.max(10, Math.floor(innerWidth/120)); const colsCount = Math.ceil(w/(fontSize)); cols.length = colsCount; for(let i=0;i<colsCount;i++) cols[i]=Math.random()*h; } function loop(){ ctx.fillStyle='rgba(0,0,0,0.06)'; ctx.fillRect(0,0,w,h); ctx.fillStyle='rgba(0,255,140,0.12)'; ctx.font = `${fontSize}px monospace`; for(let i=0;i<cols.length;i++){ const text = String.fromCharCode(33 + Math.random()*94); ctx.fillText(text, i*fontSize, cols[i]); if(cols[i] > h + Math.random()*1000) cols[i] = -50; else cols[i] += fontSize * (0.5 + Math.random()*0.9); } requestAnimationFrame(loop);} resize(); loop(); })();
+/* matrix background (same) */
+(function matrix(){ const c=document.getElementById('matrix'); const ctx=c.getContext('2d'); let w,h; function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; init(); } window.addEventListener('resize',resize); const cols=[]; let fontSize=14; function init(){ fontSize = Math.max(10, Math.floor(innerWidth/120)); const colsCount = Math.ceil(w/(fontSize)); cols.length = colsCount; for(let i=0;i<colsCount;i++) cols[i]=Math.random()*h; } function loop(){ ctx.fillStyle = 'rgba(0,0,0,0.06)'; ctx.fillRect(0,0,w,h); ctx.fillStyle = 'rgba(0,255,140,0.12)'; ctx.font = `${fontSize}px monospace`; for(let i=0;i<cols.length;i++){ const text = String.fromCharCode(33 + Math.random()*94); ctx.fillText(text, i*fontSize, cols[i]); if(cols[i] > h + Math.random()*1000) cols[i] = -50; else cols[i] += fontSize * (0.5 + Math.random()*0.9); } requestAnimationFrame(loop);} resize(); loop(); })();
 
-/* initialize */
-initGame();
+/* confetti resize */
+resizeConfetti();
+
+/* confetti spawn helper wrapper with sound */
+function spawnConfetti(){ try{ spawnConfettiCore(); }catch(e){ console.error(e); } }
+function spawnConfettiCore(){ spawnConfetti(); beep(880,120,0.02); } // note: recursion name clash - just call spawnConfetti below
+// Fix recursion by implementing minimal confetti call:
+function spawnConfetti(){ if(confettiCtx){ spawnConfettiPieces(); } }
+function spawnConfettiPieces(){ if(!confettiCtx) return; confettiPieces = []; const count = 80; for(let i=0;i<count;i++){ confettiPieces.push({x: Math.random()*innerWidth, y: -Math.random()*innerHeight, vx: (Math.random()-0.5)*4, vy: 2 + Math.random()*5, size: 6 + Math.random()*8, hue: Math.random()*360, rot: Math.random()*360, spin: (Math.random()-0.5)*0.4}); } beep(980,160,0.03); requestAnimationFrame(drawConfetti); }
+function drawConfetti(){ if(!confettiCtx) return; confettiCtx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height); for(let p of confettiPieces){ p.x += p.vx; p.y += p.vy; p.rot += p.spin; confettiCtx.save(); confettiCtx.translate(p.x,p.y); confettiCtx.rotate(p.rot); confettiCtx.fillStyle = `hsl(${p.hue} 80% 60%)`; confettiCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6); confettiCtx.restore(); } confettiPieces = confettiPieces.filter(p => p.y < innerHeight + 50); if(confettiPieces.length) requestAnimationFrame(drawConfetti); }
+
+/* populate memory UI initially */
+function populateMemoryGrid(){ memoryGrid.innerHTML=''; state.memorySeq.forEach(s=>{ const d=document.createElement('div'); d.className = 'mem-card mem-' + s; d.textContent = s; memoryGrid.appendChild(d); }); }
+
+/* initial values and UI updates */
+function updateLockDigits(){ const children = lockDigits.children; for(let i=0;i<4;i++){ children[i].textContent = state.solved ? state.code[i] : '•'; } }
+function initUI(){ populateMemoryGrid(); updateLockDigits(); renderStatus(); }
+initGame(); initUI();
+
+/* volume slider */
+document.getElementById('volume').addEventListener('input', (e)=>{ state.volume = Number(e.target.value); localStorage.setItem('cb_volume', state.volume); });
+
+/* expose pad click programmatic usage (for demonstration) */
+window.padClick = padClick;
+
 </script>
 </body>
 </html>
