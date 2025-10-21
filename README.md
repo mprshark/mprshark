@@ -78,7 +78,7 @@ contact:
 
 ---
 
-## 🧩 Projects (selected)
+## 🧩 Projects
 | Project | Description | Stack |
 |---|---:|:---|
 | **Automazior Core** | Central automation framework for scheduling, orchestration, and analytics across platforms. | Python, FastAPI, Redis, Docker, K8s |
@@ -98,58 +98,40 @@ contact:
 
 ---
 
-## 💻 Tech Arsenal
 <h2 align="center">⚙️ Tech Stack & Tools</h2>
 
-<style type="text/css">
-  .tech-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin: 20px 0;
-  }
-  .tech-icon {
-    width: 48px;
-    height: 48px;
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fadeUp 0.6s forwards;
-  }
-  @keyframes fadeUp {
-    0% {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.1s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=nodejs" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.2s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=fastapi" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.3s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=docker" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.4s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=kubernetes" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.5s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=linux" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.6s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=bash" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.7s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=nginx" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.8s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=redis" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 0.9s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=postgresql" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.0s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=mysql" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.1s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=mongodb" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.2s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=git" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.3s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=github" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.4s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=aws" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.5s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=azure" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.6s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=gcp" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.7s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=js" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.8s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=html" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 1.9s forwards;"/>
+  <img src="https://skillicons.dev/icons?i=css" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 2.0s forwards;"/>
+</p>
 
-<div class="tech-container">
-  <img class="tech-icon" style="animation-delay: 0.1s" src="https://skillicons.dev/icons?i=python" alt="Python">
-  <img class="tech-icon" style="animation-delay: 0.2s" src="https://skillicons.dev/icons?i=nodejs" alt="Node.js">
-  <img class="tech-icon" style="animation-delay: 0.3s" src="https://skillicons.dev/icons?i=fastapi" alt="FastAPI">
-  <img class="tech-icon" style="animation-delay: 0.4s" src="https://skillicons.dev/icons?i=docker" alt="Docker">
-  <img class="tech-icon" style="animation-delay: 0.5s" src="https://skillicons.dev/icons?i=kubernetes" alt="Kubernetes">
-  <img class="tech-icon" style="animation-delay: 0.6s" src="https://skillicons.dev/icons?i=linux" alt="Linux">
-  <img class="tech-icon" style="animation-delay: 0.7s" src="https://skillicons.dev/icons?i=bash" alt="Bash">
-  <img class="tech-icon" style="animation-delay: 0.8s" src="https://skillicons.dev/icons?i=nginx" alt="Nginx">
-  <img class="tech-icon" style="animation-delay: 0.9s" src="https://skillicons.dev/icons?i=redis" alt="Redis">
-  <img class="tech-icon" style="animation-delay: 1.0s" src="https://skillicons.dev/icons?i=postgresql" alt="PostgreSQL">
-  <img class="tech-icon" style="animation-delay: 1.1s" src="https://skillicons.dev/icons?i=mysql" alt="MySQL">
-  <img class="tech-icon" style="animation-delay: 1.2s" src="https://skillicons.dev/icons?i=mongodb" alt="MongoDB">
-  <img class="tech-icon" style="animation-delay: 1.3s" src="https://skillicons.dev/icons?i=git" alt="Git">
-  <img class="tech-icon" style="animation-delay: 1.4s" src="https://skillicons.dev/icons?i=github" alt="GitHub">
-  <img class="tech-icon" style="animation-delay: 1.5s" src="https://skillicons.dev/icons?i=aws" alt="AWS">
-  <img class="tech-icon" style="animation-delay: 1.6s" src="https://skillicons.dev/icons?i=azure" alt="Azure">
-  <img class="tech-icon" style="animation-delay: 1.7s" src="https://skillicons.dev/icons?i=gcp" alt="GCP">
-  <img class="tech-icon" style="animation-delay: 1.8s" src="https://skillicons.dev/icons?i=js" alt="JavaScript">
-  <img class="tech-icon" style="animation-delay: 1.9s" src="https://skillicons.dev/icons?i=html" alt="HTML5">
-  <img class="tech-icon" style="animation-delay: 2.0s" src="https://skillicons.dev/icons?i=css" alt="CSS3">
-</div>
+<svg width="0" height="0">
+  <style>
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</svg>
+
 
 
 ---
