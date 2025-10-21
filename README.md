@@ -1,8 +1,3 @@
-<p align="center">
-  <!-- <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=32&duration=3000&pause=1000&color=00CFFF&center=true&vCenter=true&width=900&lines=Hey%2C+I'm+Pranshu+Pathak+%F0%9F%90%88;Full+Stack+Developer+%7C+Automation+Architect;Founder+of+Automazior;Ethical+Hacker+%7C+Cybersecurity+Analyst;Code.+Secure.+Automate.+Repeat." alt="Typing SVG" />
-</p> -->
-
-<p align="center">
 <svg xmlns="http://www.w3.org/2000/svg" width="270px" height="75px" viewBox="0 0 90 25">
 <defs>
 <symbol id="glyph10" viewBox="0 0 6 13" width="6" height="13">
@@ -233,7 +228,7 @@
 <use href="#glyph111" x="48" y="6" fill="#ef454a">
 <animate attributeName="fill" begin="line2.begin" values="transparent;transparent;#ff9123;#ef454a;#ef454a" dur="5650ms" keyTimes="0;0.469;0.469;0.646;1"/>
 <animate attributeName="stroke" begin="line2.begin" values="transparent;transparent;#ff9123;#ef454a;#ef454a" dur="5650ms" keyTimes="0;0.469;0.469;0.646;1"/>
-<animate attributeName="stroke-width" begin="line2.begin" values="0;0;0.7;0;0" dur="5650ms" keyTimes="0;0.469;0;0.646;1"/>
+<animate attributeName="stroke-width" begin="line2.begin" values="0;0;0.7;0;0" dur="5650ms" keyTimes="0;0.469;0.469;0.646;1"/>
 </use>
 <use href="#glyph117" x="54" y="6" fill="#ef454a">
 <animate attributeName="fill" begin="line2.begin" values="transparent;transparent;#ff9123;#ef454a;#ef454a" dur="5650ms" keyTimes="0;0.533;0.533;0.71;1"/>
@@ -252,7 +247,6 @@
 </g>
 </g>
 </svg>
-</p>
 
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=120&section=header"/>
