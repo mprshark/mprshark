@@ -1,7 +1,9 @@
-![Hello](docs/hello.svg)
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=00FFFF&height=170&section=header&text=Welcome+Pranshu's+space!&fontSize=50&fontColor=FFFFFF" width="100%" />
+</p>
 
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=120&section=header"/>
+  <img src="docs/hello.svg" alt="Hello" />
 </p>
 
 # <p align="center">Pranshu Pathak — `mprshark`</p>
