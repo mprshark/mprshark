@@ -123,15 +123,6 @@ contact:
   <img src="https://skillicons.dev/icons?i=css" width="48" style="opacity:0;animation:fadeUp 0.3s ease-out 2.0s forwards;"/>
 </p>
 
-<svg width="0" height="0">
-  <style>
-    @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-  </style>
-</svg>
-
 
 
 ---
@@ -148,12 +139,8 @@ contact:
 
 ---
 
-## 🌐 3D Contribution Graph
-<p align="center">
-  <!-- Replace with your generated SVG from github-profile-3d-contrib -->
-  <img src="https://github.com/mprshark/mprshark/blob/main/profile-3d-contrib/profile-night-view.svg" alt="3D Contribution Graph" width="700"/>
-</p>
-*To auto-generate this SVG in your repo, run the github-profile-3d-contrib tool and commit the output to `profile-3d-contrib/profile-night-view.svg`.*
+## 🌐 Neural Commit Map
+[![Pranshu's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=mprshark&theme=merko)](https://github.com/mprshark/github-readme-activity-graph)
 
 ---
 
