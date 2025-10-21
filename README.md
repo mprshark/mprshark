@@ -6,14 +6,28 @@
   <img src="docs/hello.svg" alt="Hello" />
 </p>
 
+<!-- Social Links -->
 <p align="center">
-  <a href="https://automazior.in"><img alt="website" src="https://img.shields.io/badge/website-automazior.in-00aaff?style=flat-square"/></a>
-  <a href="https://instagram.com/sincryptshark"><img alt="instagram" src="https://img.shields.io/badge/instagram-@sincryptshark-E4405F?style=flat-square&logo=instagram"/></a>
-  <a href="https://mprshark.medium.com"><img alt="medium" src="https://img.shields.io/badge/medium-mprshark-000000?style=flat-square&logo=medium"/></a>
-  <a href="https://dev.to/mprshark"><img alt="devto" src="https://img.shields.io/badge/dev.to-mprshark-0A0A0A?style=flat-square&logo=dev.to"/></a>
-  <a href="https://x.com/mprshark"><img alt="x" src="https://img.shields.io/badge/x-@mprshark-1DA1F2?style=flat-square&logo=twitter"/></a>
-  <a href="https://www.linkedin.com/in/pranshupathakk"><img alt="linkedin" src="https://img.shields.io/badge/linkedin-Pranshu%20Pathak-0A66C2?style=flat-square&logo=linkedin"/></a>
+  <a href="https://automazior.in" target="_blank">
+    <img src="https://img.shields.io/badge/website-automazior.in-00aaff?style=for-the-badge&logo=firefox&logoColor=white" alt="Website" />
+  </a>
+  <a href="https://instagram.com/sincryptshark" target="_blank">
+    <img src="https://img.shields.io/badge/instagram-@sincryptshark-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" />
+  </a>
+  <a href="https://mprshark.medium.com" target="_blank">
+    <img src="https://img.shields.io/badge/medium-mprshark-000000?style=for-the-badge&logo=medium&logoColor=white" alt="Medium" />
+  </a>
+  <a href="https://dev.to/mprshark" target="_blank">
+    <img src="https://img.shields.io/badge/dev.to-mprshark-0A0A0A?style=for-the-badge&logo=dev.to&logoColor=white" alt="Dev.to" />
+  </a>
+  <a href="https://x.com/mprshark" target="_blank">
+    <img src="https://img.shields.io/badge/x-@mprshark-1DA1F2?style=for-the-badge&logo=x&logoColor=white" alt="Twitter / X" />
+  </a>
+  <a href="https://www.linkedin.com/in/pranshupathakk" target="_blank">
+    <img src="https://img.shields.io/badge/linkedin-Pranshu%20Pathak-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  </a>
 </p>
+
 
 ---
 
