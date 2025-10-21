@@ -1,0 +1,35 @@
+name: 📊 Aggregate Codebreaker Scores Daily
+on:
+  schedule:
+    - cron: '0 0 * * *'  # every day at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📥 Fetch all issues with label 'codebreaker-win'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?labels=codebreaker-win&state=all&per_page=100" \
+            > issues.json
+
+      - name: 🧾 Build SCORES.md
+        run: |
+          echo "# 🧠 Codebreaker Leaderboard" > SCORES.md
+          echo "" >> SCORES.md
+          jq -r '.[] | "- [\(.title)](\(.html_url)) — \(.user.login) — \(.created_at)"' issues.json >> SCORES.md
+          echo "" >> SCORES.md
+
+      - name: 💾 Commit updated leaderboard
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SCORES.md
+          git commit -m "📊 Update daily Codebreaker leaderboard" || echo "No changes"
+          git push
