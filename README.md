@@ -6,7 +6,6 @@
   <img src="docs/hello.svg" alt="Hello" />
 </p>
 
-# <p align="center">`mprshark`</p>
 <p align="center">
   <a href="https://automazior.in"><img alt="website" src="https://img.shields.io/badge/website-automazior.in-00aaff?style=flat-square"/></a>
   <a href="https://instagram.com/sincryptshark"><img alt="instagram" src="https://img.shields.io/badge/instagram-@sincryptshark-E4405F?style=flat-square&logo=instagram"/></a>
