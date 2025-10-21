@@ -6,27 +6,28 @@
   <img src="docs/hello.svg" alt="Hello" />
 </p>
 
-<!-- Social Links -->
+<!-- 🌐 Socials -->
 <p align="center">
-  <a href="https://automazior.in" target="_blank">
-    <img src="https://img.shields.io/badge/website-automazior.in-00aaff?style=for-the-badge&logo=firefox&logoColor=white" alt="Website" />
+  <a href="https://automazior.in">
+    <img height="50" src="https://user-images.githubusercontent.com/46517096/166972883-f5f1d88c-0246-4374-88ac-ded0f2cf0699.png" alt="Website" />
   </a>
-  <a href="https://instagram.com/sincryptshark" target="_blank">
-    <img src="https://img.shields.io/badge/instagram-@sincryptshark-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" />
+  <a href="https://instagram.com/sincryptshark">
+    <img height="50" src="https://user-images.githubusercontent.com/46517096/166974368-9798f39f-1f46-499c-b14e-81f0a3f83a06.png" alt="Instagram" />
   </a>
-  <a href="https://mprshark.medium.com" target="_blank">
-    <img src="https://img.shields.io/badge/medium-mprshark-000000?style=for-the-badge&logo=medium&logoColor=white" alt="Medium" />
+  <a href="https://mprshark.medium.com">
+    <img height="50" src="https://user-images.githubusercontent.com/46517096/166973962-d05d145a-b6a0-4643-bd3d-5ac845679367.png" alt="Medium" />
   </a>
-  <a href="https://dev.to/mprshark" target="_blank">
-    <img src="https://img.shields.io/badge/dev.to-mprshark-0A0A0A?style=for-the-badge&logo=dev.to&logoColor=white" alt="Dev.to" />
+  <a href="https://dev.to/mprshark">
+    <img height="50" src="https://user-images.githubusercontent.com/46517096/166974096-7aeecad4-483e-4c85-983f-f4b37b3f794e.png" alt="Dev.to" />
   </a>
-  <a href="https://x.com/mprshark" target="_blank">
-    <img src="https://img.shields.io/badge/x-@mprshark-1DA1F2?style=for-the-badge&logo=x&logoColor=white" alt="Twitter / X" />
+  <a href="https://x.com/mprshark">
+    <img height="50" src="https://user-images.githubusercontent.com/46517096/166974271-91dfa250-d70b-4cb9-8707-f1bda1b708c3.png" alt="Twitter/X" />
   </a>
-  <a href="https://www.linkedin.com/in/pranshupathakk" target="_blank">
-    <img src="https://img.shields.io/badge/linkedin-Pranshu%20Pathak-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  <a href="https://www.linkedin.com/in/pranshupathakk">
+    <img height="50" src="https://user-images.githubusercontent.com/46517096/166973395-19676cd8-f8ec-4abf-83ff-da8243505b82.png" alt="LinkedIn" />
   </a>
 </p>
+
 
 
 ---
