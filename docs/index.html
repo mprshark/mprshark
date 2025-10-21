@@ -333,23 +333,23 @@ function toggleSound(){
   if(state.soundEnabled) { ensureAudio(); beep(880,80,0.02); }
 }
 
-/* HELPER: show hello svg if present */
-(async function loadHello(){
-  try {
-    // try to fetch docs/hello.svg if exists
-    const u = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/docs/hello.svg`;
-    const r = await fetch(u);
-    if(r.ok){
-      const svg = await r.text();
-      helloSlot.innerHTML = svg;
-    } else {
-      // fallback tiny svg
-      helloSlot.innerHTML = `<svg width="270" height="75" viewBox="0 0 270 75" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace" font-size="20">Hello</text></svg>`;
-    }
-  } catch(e){
-    helloSlot.innerHTML = `<svg width="270" height="75" viewBox="0 0 270 75" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace" font-size="20">Hello</text></svg>`;
-  }
-})();
+// /* HELPER: show hello svg if present */
+// (async function loadHello(){
+//   try {
+//     // try to fetch docs/hello.svg if exists
+//     const u = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/docs/hello.svg`;
+//     const r = await fetch(u);
+//     if(r.ok){
+//       const svg = await r.text();
+//       helloSlot.innerHTML = svg;
+//     } else {
+//       // fallback tiny svg
+//       helloSlot.innerHTML = `<svg width="270" height="75" viewBox="0 0 270 75" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace" font-size="20">Hello</text></svg>`;
+//     }
+//   } catch(e){
+//     helloSlot.innerHTML = `<svg width="270" height="75" viewBox="0 0 270 75" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#00ff9c" font-family="JetBrains Mono, monospace" font-size="20">Hello</text></svg>`;
+//   }
+// })();
 
 /* DAILY CODE generation (UTC-based) */
 function generateCode(){
