@@ -164,6 +164,19 @@ Author: Pranshu Pathak (@mprshark)
 Permission is hereby granted, free of charge, to any person obtaining a copy...
 ~~~
 
+## 🎮 Play — Terminal Heist (Codebreaker)
+
+Hacker vibe mini-game — crack the 4-digit code. Hosted via GitHub Pages.
+
+<p align="center">
+  <a href="https://mprshark.github.io/mprshark/" target="_blank">
+    <img src="https://img.shields.io/badge/Play%20Codebreaker-%E2%9C%85%20Launch%20Terminal-00FF9C?style=for-the-badge&logo=ghost" alt="Play Codebreaker" />
+  </a>
+</p>
+
+> Tip: Type `help` in the terminal to see available commands.
+
+
 <p align="center">
  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=170&section=footer" width="100%" />
 </p>
