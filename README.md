@@ -164,7 +164,6 @@ Author: Pranshu Pathak (@mprshark)
 Permission is hereby granted, free of charge, to any person obtaining a copy...
 ~~~
 
-## 🎮 Play — Terminal Heist (Codebreaker)
 
 <h1 align="center">🎮 Terminal Heist (Codebreaker)</h1>
 <p align="center">
