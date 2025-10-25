@@ -166,15 +166,33 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
 
 ## 🎮 Play — Terminal Heist (Codebreaker)
 
-Hacker vibe mini-game — crack the 4-digit code. Hosted via GitHub Pages.
+<h1 align="center">🎮 Terminal Heist (Codebreaker)</h1>
+<p align="center">
+  <i>Hacker vibe mini-game — crack the 4-digit code.</i><br>
+  <i>Hosted via GitHub Pages.</i>
+</p>
 
 <p align="center">
-  <a href="https://mprshark.github.io/mprshark/" target="_blank">
-    <img src="https://img.shields.io/badge/Play%20Codebreaker-%E2%9C%85%20Launch%20Terminal-00FF9C?style=for-the-badge&logo=ghost" alt="Play Codebreaker" />
+  <a href="https://mprshark.github.io/codebreaker/" target="_blank">
+    <img src="https://img.shields.io/badge/▶️%20Play%20Codebreaker-1e1e1e?style=for-the-badge&logo=github&logoColor=white" />
+  </a>
+  <a href="https://mprshark.github.io/terminal/" target="_blank">
+    <img src="https://img.shields.io/badge/🖥️%20Launch%20Terminal-39FF14?style=for-the-badge&logo=codeforces&logoColor=black" />
   </a>
 </p>
 
-> Tip: Type `help` in the terminal to see available commands.
+---
+
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=mprshark&show_icons=true&theme=tokyonight&hide_border=true&bg_color=00000000" width="48%" />
+  <img src="https://github-readme-streak-stats.herokuapp.com?user=mprshark&theme=tokyonight&hide_border=true&background=00000000" width="48%" />
+</p>
+
+---
+
+<p align="center">
+  <sub>🧠 Built with curiosity. Fueled by caffeine. Styled for hackers.</sub>
+</p>
 
 
 <p align="center">
