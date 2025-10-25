@@ -180,14 +180,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
   </a>
 </p>
 
----
-
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=mprshark&show_icons=true&theme=tokyonight&hide_border=true&bg_color=00000000" width="48%" />
-  <img src="https://github-readme-streak-stats.herokuapp.com?user=mprshark&theme=tokyonight&hide_border=true&background=00000000" width="48%" />
-</p>
-
----
 
 <p align="center">
   <sub>🧠 Built with curiosity. Fueled by caffeine. Styled for hackers.</sub>
