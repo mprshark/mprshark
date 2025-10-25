@@ -165,65 +165,20 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
 ~~~
 
 
-<!-- 🎮 Terminal Heist — Hacker Vibe Section -->
-<div align="center">
+<h2 align="center">🎮 Terminal Heist (Codebreaker)</h2>
+<p align="center"><i>Hack the terminal. Crack the 4-digit code. Hosted on GitHub Pages.</i></p>
 
-<h1 style="font-family: monospace;">🎮 Terminal Heist <span style="color:#00ff9f;">(Codebreaker)</span></h1>
+<p align="center">
+  <a href="https://mprshark.github.io/codebreaker/" target="_blank">
+    <img src="https://raw.githubusercontent.com/mprshark/mprshark/main/assets/play-btn.svg" width="180" alt="Play Codebreaker">
+  </a>
+</p>
 
-<p><em>Hack the terminal. Crack the 4-digit code. Hosted on GitHub Pages.</em></p>
-
-<br>
-
-<!-- Animated Play Button -->
-<a href="https://mprshark.github.io/codebreaker/" target="_blank" style="text-decoration:none;">
-  <div style="
-    display:inline-block;
-    padding:14px 36px;
-    border:2px solid #00ff9f;
-    border-radius:10px;
-    color:#00ff9f;
-    font-family:'Courier New', monospace;
-    font-weight:bold;
-    font-size:18px;
-    background:rgba(0,0,0,0.2);
-    box-shadow:0 0 15px #00ff9f;
-    animation:pulse 1.5s infinite;
-    transition:all 0.3s ease;">
-    ▶️ PLAY CODEBREAKER
-  </div>
-</a>
-
-<br><br>
-
-<a href="https://mprshark.github.io/terminal/" target="_blank" style="text-decoration:none;">
-  <div style="
-    display:inline-block;
-    padding:12px 30px;
-    border:2px solid #39FF14;
-    border-radius:8px;
-    color:#39FF14;
-    font-family:'Courier New', monospace;
-    background:rgba(0,0,0,0.3);
-    font-size:16px;
-    margin-top:10px;
-    transition:all 0.3s ease;
-    box-shadow:0 0 10px #39FF14;">
-    🖥️ LAUNCH TERMINAL
-  </div>
-</a>
-
-<br><br>
-
-<style>
-@keyframes pulse {
-  0% { box-shadow:0 0 5px #00ff9f; transform:scale(1); }
-  50% { box-shadow:0 0 25px #00ff9f; transform:scale(1.05); }
-  100% { box-shadow:0 0 5px #00ff9f; transform:scale(1); }
-}
-</style>
-
-</div>
-
+<p align="center">
+  <a href="https://mprshark.github.io/terminal/" target="_blank">
+    <img src="https://img.shields.io/badge/🖥️%20Launch%20Terminal-39FF14?style=for-the-badge&logo=codeforces&logoColor=black" alt="Launch Terminal">
+  </a>
+</p>
 
 <p align="center">
   <sub>🧠 Built with curiosity. Fueled by caffeine. Styled for hackers.</sub>
