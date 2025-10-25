@@ -174,11 +174,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
   </a>
 </p>
 
-<p align="center">
-  <a href="https://mprshark.github.io/terminal/" target="_blank">
-    <img src="https://img.shields.io/badge/🖥️%20Launch%20Terminal-39FF14?style=for-the-badge&logo=codeforces&logoColor=black" alt="Launch Terminal">
-  </a>
-</p>
 
 <p align="center">
   <sub>🧠 Built with curiosity. Fueled by caffeine. Styled for hackers.</sub>
