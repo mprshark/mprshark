@@ -169,7 +169,7 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
 <p align="center"><i>Hack the terminal. Crack the 4-digit code. Hosted on GitHub Pages.</i></p>
 
 <p align="center">
-  <a href="https://mprshark.github.io/codebreaker/" target="_blank">
+  <a href="https://mprshark.github.io/mprshark/" target="_blank">
     <img src="https://raw.githubusercontent.com/mprshark/mprshark/main/assets/play-btn.svg" width="180" alt="Play Codebreaker">
   </a>
 </p>
