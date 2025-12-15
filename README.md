@@ -14,7 +14,7 @@
   <a href="https://instagram.com/sincryptshark">
     <img height="50" src="https://user-images.githubusercontent.com/46517096/166974368-9798f39f-1f46-499c-b14e-81f0a3f83a06.png" alt="Instagram" />
   </a>
-  <a href="https://mprshark.medium.com">
+  <a href="https://medium.com/@mprshark">
     <img height="50" src="https://user-images.githubusercontent.com/46517096/166973962-d05d145a-b6a0-4643-bd3d-5ac845679367.png" alt="Medium" />
   </a>
   <a href="https://dev.to/mprshark">
