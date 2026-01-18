@@ -165,11 +165,11 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
 ~~~
 
 
-<h2 align="center">🎮 Terminal Heist (Codebreaker)</h2>
-<p align="center"><i>Hack the terminal. Crack the 4-digit code. Hosted on GitHub Pages.</i></p>
+<h2 align="center">🎮 Codebreaker</h2>
+<p align="center"><i>Hack the terminal. Crack the 2 digit code. Hosted on GitHub Pages.</i></p>
 
 <p align="center">
-  <a href="https://mprshark.github.io/mprshark/" target="_blank">
+  <a href="https://mprshark.github.io/Codebreaker/" target="_blank">
     <img src="https://raw.githubusercontent.com/mprshark/mprshark/main/assets/play-btn.svg" width="180" alt="Play Codebreaker">
   </a>
 </p>
